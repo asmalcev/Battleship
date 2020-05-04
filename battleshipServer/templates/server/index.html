@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BattleShip</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static "stylesheets/main.css" %}">
+  <link rel="stylesheet" href="{% static "stylesheets/menu.css" %}">
+  <link rel="shortcut icon" href="{% static "images/BattleShip-icon.png" %}" type="image/x-icon">
+  {% csrf_token %}
+</head>
+<body>
+  <div class="header">
+    <h1>BattleShip</h1>
+    <h3>Your id: {{ playerID }}</h3>
+  </div>
+    <div class="game-menu">
+      <div class="tab">
+        <button class="tablinks active" data-target="Search" data-openDefault>Search</button>
+        <button class="tablinks" data-target="Create">Create</button>
+      </div>
+      <div id="Search" class="tabcontent">
+        <form id="search-form">
+          <div class="input-container">
+            <input id="search-field" type="text" minlength="6" maxlength="6" name="search" placeholder="ID" class="input-field" autocomplete="off" required>
+            <label for="search-field" class="textholder">ID</label>
+            <p id="errMSG">ID should contain only numbers</p>
+          </div>
+          <input type="submit" value="Search" class="styled-btn">
+        </form>
+      </div>
+      
+      <div id="Create" class="tabcontent">
+        <form id="create-form">
+          <input type="submit" value="Create" class="styled-btn">
+        </form>
+      </div>
+    </div>
+  <div class="modal-wrapper">
+    <div class="modal">
+      <h3>404</h3>
+      <p></p>
+      <input type="button" class="styled-btn" value="Ok">
+    </div>
+  </div>
+  <script src="{% static "scripts/menu.js" %}"></script>
+</body>
+</html>

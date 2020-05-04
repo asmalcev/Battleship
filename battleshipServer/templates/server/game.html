@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BattleShip</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static "stylesheets/main.css" %}">
+  <link rel="stylesheet" href="{% static "stylesheets/game.css" %}">
+  <link rel="shortcut icon" href="{% static "images/BattleShip-icon.png" %}" type="image/x-icon">
+  {% csrf_token %}
+</head>
+<body>
+  <div class="header">
+    <h1>BattleShip</h1>
+    <h3>Your id: {{ playerID }}</h3>
+    <h3>Room id: {{ roomID }}</h3>
+    <input type="text" value="{{ roomID }}" data-roomID hidden>
+    <input type="button" id="quit" value="Quit room" class="styled-btn">
+  </div>
+    <div class="fields-container">
+      <div class="wrapper">
+        <div class="field-window">
+          <h4>Your ships</h4>
+          <div class="ship-menu"></div>
+        </div>
+      </div>
+      <div class="wrapper">
+        <h4>Your fleet</h4>
+        <div class="field player"></div>
+      </div>
+      <div class="wrapper">
+        <h4>Enemy fleet</h4>
+        <div class="field enemy"></div>
+      </div>
+      <div class="wrapper">
+        <div class="field-window">
+          <h4>Battle stats</h4>
+        </div>
+      </div>
+    </div>
+
+  <script type="module" src="{% static "scripts/main.js" %}"></script>
+</body>
+</html>

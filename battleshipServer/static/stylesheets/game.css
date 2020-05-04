@@ -1,0 +1,106 @@
+.fields-container {
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  flex-wrap: wrap;
+  padding: 30px 5px;
+}
+.field {
+  display: flex;
+  flex-wrap: wrap;
+  box-shadow: 0 0 10px #0002;
+  width: 430px;
+  padding: 5px;
+  justify-content: center;
+  align-items: center;
+  background-color: #3D518C;
+  border-radius: 4px;
+  margin: 0px 10px;
+}
+.field.enemy {
+  cursor: url('../images/aim.png') 15 15, pointer;
+}
+.wrapper h4 {
+  text-align: center;
+  padding: 12px;
+}
+.cell {
+  width: 40px;
+  height: 40px;
+  margin: 1px;
+  border-radius: 4px;
+  position: relative;
+}
+.cell.empty {
+  background-color: #ABD2FA;
+}
+.cell.empty:hover {
+  background-color: #89A9CF;
+}
+.cell.ship {
+  background-color: #F2F2DB;
+}
+.cell.miss {
+  background-color: #fff;
+}
+.cell.destroyed-ship {
+  background-color: #263238;
+}
+.cell.hit {
+  background-color: #e53935;
+}
+.cell.miss::before, .cell.miss::after, .cell.hit::before, .cell.hit::after {
+  content: '';
+  background-color: #333;
+  width: 2px;
+  height: 30px;
+  position: absolute;
+  left: 19px;
+  top: 5px;
+  transform: rotate(45deg);
+}
+.cell.miss::after, .cell.hit::after {
+  transform: rotate(-45deg);
+}
+.field-window {
+  margin-top: 42px;
+  height: 430px;
+  width: 200px;
+  background-color: #fff;
+  box-shadow: 0 0 10px #0002;
+  position: relative;
+  transition: .3s;
+  transition-timing-function: ease-in-out;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.field-window ul li {
+  list-style: none;
+  cursor: pointer;
+  margin: 12px;
+  text-align: center;
+}
+.field-window ul li.active {
+  color: #555;
+}
+.ship-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  user-select: none;
+  flex-grow: 1;
+}
+.ship-menu button {
+  background-color: #FFB74D;
+  border-radius: 5px;
+  border: 2px solid #FF9800;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 12px;
+  width: 150px;
+  outline: none;
+}
