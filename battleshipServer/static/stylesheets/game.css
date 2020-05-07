@@ -4,6 +4,7 @@
   align-items: start;
   flex-wrap: wrap;
   padding: 30px 5px;
+  position: relative;
 }
 .field {
   display: flex;
@@ -49,7 +50,10 @@
 .cell.hit {
   background-color: #e53935;
 }
-.cell.miss::before, .cell.miss::after, .cell.hit::before, .cell.hit::after {
+.cell.blocked {
+  background-color: #ABD2FA;
+}
+.cell.miss::before, .cell.miss::after, .cell.hit::before, .cell.hit::after, .cell.blocked::before, .cell.blocked::after {
   content: '';
   background-color: #333;
   width: 2px;
@@ -59,7 +63,7 @@
   top: 5px;
   transform: rotate(45deg);
 }
-.cell.miss::after, .cell.hit::after {
+.cell.miss::after, .cell.hit::after, .cell.blocked::after {
   transform: rotate(-45deg);
 }
 .field-window {
@@ -103,4 +107,65 @@
   padding: 12px;
   width: 150px;
   outline: none;
+}
+#connection {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  font-size: 14px;
+}
+#connection .status {
+  position: absolute;
+  border-radius: 3px;
+  width: 16px;
+  height: 16px;
+  left: -20px;
+  top: 1px;
+}
+#connection .status::before, #connection .status::after {
+  content: '';
+  background-color: #fff;
+  position: absolute;
+}
+#connection .status.ok {
+  background-color: #4CAF50;
+}
+#connection .status.ok::before, #connection .status.ok::after {
+  width: 12px;
+  height: 2px;
+  transform: rotate(-50deg);
+  top: 6px;
+  left: 3px;
+}
+#connection .status.ok::before {
+  width: 4px;
+  height: 3px;
+  transform: rotate(40deg);
+  top: 8px;
+}
+#connection .status.bad {
+  background-color: #f44336;
+}
+#connection .status.bad::before, #connection .status.bad::after {
+  width: 12px;
+  height: 2px;
+  transform: rotate(-45deg);
+  top: 7px;
+  left: 2px;
+}
+#connection .status.bad::before {
+  transform: rotate(45deg);
+}
+.modal li {
+  list-style: none;
+}
+#wall {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  cursor: not-allowed;
+  display: none;
 }

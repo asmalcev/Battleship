@@ -1,12 +1,36 @@
+const disableGame = () => {
+  document.querySelector('.fields-container').style['filter'] = 'grayscale(1)'
+  document.querySelector('#wall').style['display'] = 'block'
+}
+
+const enableGame = () => {
+  document.querySelector('.fields-container').style['filter'] = 'grayscale(0)'
+  document.querySelector('#wall').style['display'] = 'none'
+}
+
 import {Game} from './Game.js'
 
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
 
+const roomID = document.querySelector('[data-roomID]').value
+const playerID = document.querySelector('[data-playerID]').value
+let opponentID = undefined
+
+const msg = {
+  type: 'check',
+}
+
 let game = new Game()
 
-game.init()
+const changeStatus = (statusIconClass, statusQualityText) => {
+  const status = document.querySelector('#connection .status')
+  const quality = document.querySelector('#connection .quality')
 
-document.querySelector('#quit').addEventListener('click', event => {
+  status.classList.add(statusIconClass)
+  quality.innerHTML = statusQualityText
+}
+
+const sendDeleteRequest = () => {
   let request = new Request(
     'quit',
     { headers: {'X-CSRFToken': csrftoken} }
@@ -18,28 +42,89 @@ document.querySelector('#quit').addEventListener('click', event => {
   }).then(response => {
     document.location.replace(response.url)
   })
-})
+}
 
-const roomID = document.querySelector('[data-roomID').value
-let socket = new WebSocket(`wss://${window.location.host}/game/${roomID}`)
+const openModal = (h3Text, pText, btnText, btnClickedFunc) => {
+  document.querySelector('.modal-wrapper').style['display'] = 'flex'
+
+  document.querySelector('.modal').innerHTML = 
+   `<h3>${h3Text}</h3>
+    <p>${pText}</p>
+    <input type="button" class="styled-btn" value="${btnText}">`
+  document.querySelector('.modal input[type=button]').addEventListener('click', btnClickedFunc)
+}
+
+const closeModal = () => {
+  document.querySelector('.modal-wrapper').style['display'] = 'none'
+}
+
+document.querySelector('#quit').addEventListener('click', sendDeleteRequest)
+
+let socket = new WebSocket(`ws://${window.location.host}/game/${roomID}`)
 
 socket.onopen = event => {
-  console.log('[open] WebSocket connection')
-  socket.send('ready')
+  changeStatus('ok', 'Connection established')
+
+  const initialMSG = {
+    type: 'initial',
+    playerID: playerID
+  }
+
+  socket.send(JSON.stringify(initialMSG))
+  socket.send(JSON.stringify(msg))
 }
 
 socket.onmessage = event => {
-  console.log(`[message] MSG from server: ${event.data}`)
-}
+  // console.log(event)
 
-socket.onclose = event => {
-  if (event.wasClean) {
-    console.log(`[close] Connection closed`)
-  } else {
-    console.log('[close] Connection lost')
+  const response = JSON.parse(event.data)
+  if (response.type === 'initial') {
+    // response.playerField = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    // response.opponentField = "0000000020000000000003000000020300000000000000000200000000000000200400000000040002000004000000000000"
+    game.init(response.playerField, response.opponentField, disableGame)
+    // game.init(response.playerField, response.opponentField, () => {})
+  } else if (response.type === 'warning') {
+    switch(response.code) {
+      case 1: // room has been deleted
+        changeStatus('bad', 'Connection lost')
+        openModal('404',
+          'Seems like host leaved the room and it has been deleted',
+          'Return to lobby',
+          sendDeleteRequest)
+        break;
+    }
+  } else if (response.type == 'check') {
+    if (response.opponent !== "None" && opponentID === undefined) {
+      opponentID = response.opponent
+      openModal('You are not alone!',
+          `People in room:
+            <ul>
+              <li>${playerID}</li>
+              <li>${opponentID}</li>
+            </ul>`,
+          'Ok :)',
+          closeModal)
+      enableGame()
+    } else if (response.opponent === "None" && opponentID !== undefined) {
+      opponentID = undefined
+      openModal('Opponent leaved',
+          '',
+          'Ok :(',
+          closeModal)
+      disableGame()
+    }
   }
 }
 
-socket.onerror = error => {
-  console.error(`[error] ${error.message}`)
+socket.onclose = event => {
+  changeStatus('bad', 'Connection lost')
+  clearInterval(checker)
 }
+
+socket.onerror = error => {
+  console.error(`[WebSocket error] ${error.message}`)
+}
+
+let checker = setInterval(() => {
+  socket.send(JSON.stringify(msg))
+}, 1000)

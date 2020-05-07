@@ -13,16 +13,17 @@ def index(request):
   print(list(map(lambda x: 'hostID: {0}; guestID: {1}; roomID: {2}'.format(x.hostID, x.guestID, x.roomID) , list(Room.objects.all()))))
   playerID = request.session.get('playerID', getRandomID())
   roomID = request.session.get('roomID', None)
-  # roomID = None
   request.session['playerID'] = playerID
 
   context = {
     'playerID': playerID,
   }
   if roomID == None:
+    request.session.modified = True
     return render(request, 'server/index.html', context)
   else:
     context['roomID'] = roomID
+    request.session.modified = True
     return render(request, 'server/game.html', context)
 
 def search(request):
@@ -34,6 +35,7 @@ def search(request):
     room.guestID = request.session['playerID']
     room.save()
     request.session['roomID'] = ID
+    request.session.modified = True
     return redirect('/')
   except:
     return HttpResponse(status=404)
@@ -44,12 +46,21 @@ def create(request):
   room.save()
 
   request.session['roomID'] = roomID
-  print(list(map(lambda x: 'hostID: {0}; guestID: {1}; roomID: {2}'.format(x.hostID, x.guestID, x.roomID) , list(Room.objects.all()))))
+  request.session.modified = True
   return redirect('/')
 
 def quit(request):
-  room = Room.objects.get(pk = request.session['roomID'])
-  room.delete()
-  del request.session['roomID']
-  print(list(map(lambda x: 'hostID: {0}; guestID: {1}; roomID: {2}'.format(x.hostID, x.guestID, x.roomID) , list(Room.objects.all()))))
+  try:
+    room = Room.objects.get(pk = request.session['roomID'])
+    if room.hostID == request.session['playerID']:
+      room.delete()
+      print('Host deleted room ID: ', request.session['roomID'])
+    else:
+      room.guestID = None
+      room.save()
+      print('Guest leaved room ID: ', request.session['roomID'])
+    del request.session['roomID']
+  except:
+    del request.session['roomID']
+  request.session.modified = True
   return redirect('/')

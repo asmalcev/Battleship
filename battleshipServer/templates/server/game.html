@@ -15,10 +15,16 @@
     <h1>BattleShip</h1>
     <h3>Your id: {{ playerID }}</h3>
     <h3>Room id: {{ roomID }}</h3>
+    <div id="connection">
+      <div class="status"></div>
+      <div class="quality"></div>
+    </div>
     <input type="text" value="{{ roomID }}" data-roomID hidden>
+    <input type="text" value="{{ playerID }}" data-playerID hidden>
     <input type="button" id="quit" value="Quit room" class="styled-btn">
   </div>
     <div class="fields-container">
+      <div id="wall"></div>
       <div class="wrapper">
         <div class="field-window">
           <h4>Your ships</h4>
@@ -39,7 +45,10 @@
         </div>
       </div>
     </div>
-
+  
+  <div class="modal-wrapper">
+    <div class="modal"></div>
+  </div>
   <script type="module" src="{% static "scripts/main.js" %}"></script>
 </body>
 </html>

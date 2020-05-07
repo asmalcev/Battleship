@@ -16,6 +16,8 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -37,7 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    #own
     'battleshipServer.apps.BattleshipserverConfig',
+    
 ]
 
 MIDDLEWARE = [
@@ -120,5 +125,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-SESSION_COOKIE_AGE = 10 * 60
-SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# Sessions settings
+
+SESSION_SAVE_EVERY_REQUEST = True
+
+ALLOWED_HOSTS = ['*']

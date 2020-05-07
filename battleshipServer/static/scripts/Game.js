@@ -5,7 +5,8 @@ const GameParams = {
     { id: 1, name: 'Missile Cruisers',  count: 2 },
     { id: 2, name: 'Destroyers',        count: 3 },
     { id: 3, name: 'Frigates',          count: 4 }
-  ]
+  ],
+  codeClass: ['empty', 'ship', 'miss', 'hit', 'destroyed-ship']
 }
 
 const getRect = (x, y, w, h) => {
@@ -55,17 +56,19 @@ export class Game {
     this.ships = GameParams.ships.map(ship => { return { id: ship.id, count: ship.count } })
   }
 
-  init() {
+  init(playerField, opponentField, callback) {
     this.ctrlBtn.innerHTML = 'Rotate ship'
     this.ctrlBtn.addEventListener('click', this.changeRotation)
 
     for (let i = 0; i < 100; i++) {
       this.playerField.innerHTML +=
-        `<div class="cell empty" data-x="${i % 10}" data-y="${Math.floor(i / 10)}"></div>`
+        `<div class="cell ${GameParams.codeClass[playerField[i]]}" data-x="${i % 10}" data-y="${Math.floor(i / 10)}"></div>`
       this.enemyField.innerHTML +=
-        `<div class="cell empty" data-x="${i % 10}" data-y="${Math.floor(i / 10)}"></div>`
+        `<div class="cell ${GameParams.codeClass[opponentField[i]]}" data-x="${i % 10}" data-y="${Math.floor(i / 10)}"></div>`
     }
     this.cells = document.querySelectorAll('.field.player .cell')
+    this.enemyCells = document.querySelectorAll('.field.enemy .cell')
+    this.checkField()
 
     this.playerField.addEventListener('mouseout', clearField)
     this.renderShipMenu()
@@ -73,6 +76,8 @@ export class Game {
     this.cells.forEach(cell => {
       cell.addEventListener('click', this.handleShipPlacement)
     })
+
+    callback()
   }
 
   handleShipPlacement = event => {
@@ -206,6 +211,15 @@ export class Game {
         ship.addEventListener('click', this.handleShipChoose)
       })
     }
+  }
+
+  checkField = () => {
+    document.querySelectorAll('.field.enemy .cell.destroyed-ship').forEach(cell => {
+      getRect(+cell.dataset.x - 1, +cell.dataset.y - 1, 3, 3).forEach(coords => {
+        const i = coords.x + coords.y * GameParams.fieldSize.width
+        this.enemyCells[i].className = this.enemyCells[i].className.replace('empty', 'blocked')
+      })
+    })
   }
 
   startGame = () => {
