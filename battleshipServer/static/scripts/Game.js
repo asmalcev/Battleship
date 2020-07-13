@@ -6,7 +6,7 @@ const GameParams = {
     { id: 2, name: 'Destroyers',        count: 3 },
     { id: 3, name: 'Frigates',          count: 4 }
   ],
-  codeClass: ['empty', 'ship', 'miss', 'hit', 'destroyed-ship']
+  codeClass: ['empty', 'ship', 'miss', 'hit', 'destroyed-ship', 'blocked']
 }
 
 const getRect = (x, y, w, h) => {
@@ -53,22 +53,47 @@ export class Game {
     this.shipRotation = true // true - vertical, false - horizontal
     this.possibleToPlaceShip = false
     this.choosenShip = null
-    this.ships = GameParams.ships.map(ship => { return { id: ship.id, count: ship.count } })
+
+    this.resetBtn = document.createElement('button')
+    this.resetBtn.innerHTML = 'Reset'
+    this.resetBtn.classList.add('reset')
+    this.resetBtn.addEventListener('click', this.reset)
   }
 
-  init(playerField, opponentField, callback) {
+  init(
+    playerField,
+    opponentField,
+    startedCallback,
+    callback,
+    makeStep
+  ) {
+    this.gameStarted = startedCallback
+    this.makeStep = makeStep
+
     this.ctrlBtn.innerHTML = 'Rotate ship'
     this.ctrlBtn.addEventListener('click', this.changeRotation)
 
     for (let i = 0; i < 100; i++) {
       this.playerField.innerHTML +=
-        `<div class="cell ${GameParams.codeClass[playerField[i]]}" data-x="${i % 10}" data-y="${Math.floor(i / 10)}"></div>`
+        `<div class="cell ${GameParams.codeClass[playerField[i]]}"
+          data-x="${i % 10}" data-y="${Math.floor(i / 10)}" ${playerField[i] == 1 ? "data-ship" : ""}>
+        </div>`
       this.enemyField.innerHTML +=
         `<div class="cell ${GameParams.codeClass[opponentField[i]]}" data-x="${i % 10}" data-y="${Math.floor(i / 10)}"></div>`
     }
     this.cells = document.querySelectorAll('.field.player .cell')
-    this.enemyCells = document.querySelectorAll('.field.enemy .cell')
     this.checkField()
+
+    if (playerField.search(/[^0]/) == -1) {
+      this.ships = GameParams.ships.map(ship => { return { id: ship.id, count: ship.count } })
+    } else {
+
+      // IF GAME HAVE ALREADY STARTED
+
+      this.ships = []
+      this.windows[0].style['height'] = '0'
+      this.prepareEnemyField()
+    }
 
     this.playerField.addEventListener('mouseout', clearField)
     this.renderShipMenu()
@@ -108,8 +133,8 @@ export class Game {
       this.playerField.style['cursor'] = "auto"
       this.renderShipMenu()
       if (this.ships.length == 0) {
-        this.windows[0].childNodes[1].innerHTML = ''
-        this.windows[0].style['height'] = '100px'
+        this.windows[0].childNodes[1].style['display'] = 'none'
+        this.windows[0].style['height'] = 'auto'
       }
     }
   }
@@ -196,12 +221,15 @@ export class Game {
       this.ctrlBtn.innerHTML = 'Start Game'
       this.ctrlBtn.removeEventListener('click', this.changeRotation)
       this.ctrlBtn.addEventListener('click', this.startGame)
-  
+
+      // this.shipMenu.appendChild(this.resetBtn)
       this.shipMenu.appendChild(this.ctrlBtn)
     } else {
       this.shipMenu.innerHTML = '<ul>' +
         this.ships
-            .map(ship => `<li data-id="${ship.id}">${GameParams.ships[ship.id].name}${(ship.count > 1) ? ` x${ship.count}` : ''}</li>`)
+            .map(ship => `<li data-id="${ship.id}">
+              ${GameParams.ships[ship.id].name}${(ship.count > 1) ? ` x${ship.count}` : ''}
+            </li>`)
             .join('')
         + '</ul>'
   
@@ -215,15 +243,61 @@ export class Game {
 
   checkField = () => {
     document.querySelectorAll('.field.enemy .cell.destroyed-ship').forEach(cell => {
-      getRect(+cell.dataset.x - 1, +cell.dataset.y - 1, 3, 3).forEach(coords => {
+      const x = +cell.dataset.x
+      const y = +cell.dataset.y
+      getRect(x - 1, y - 1, 3, 3).forEach(coords => {
         const i = coords.x + coords.y * GameParams.fieldSize.width
-        this.enemyCells[i].className = this.enemyCells[i].className.replace('empty', 'blocked')
+        document.querySelectorAll('.field.enemy .cell')[i].classList.replace('empty', 'blocked')
       })
     })
   }
 
   startGame = () => {
     this.windows[0].style['height'] = '0'
-    console.log('Started')
+    this.gameStarted(Array.from(
+        document
+          .querySelectorAll('.field.player .cell'))
+          .map(cell => GameParams.codeClass.indexOf(cell.className.split(' ')[1])
+      ).join(''))
+
+    this.prepareEnemyField()
+  }
+
+  reset = () => {
+    document
+      .querySelectorAll('.field.player .cell')
+      .forEach(cell => cell.className = 'cell empty')
+    this.possibleToPlaceShip = false
+    this.choosenShip = null
+    this.ships = GameParams.ships.map(ship => { return { id: ship.id, count: ship.count } })
+
+    this.windows[0].childNodes[1].style['display'] = 'block'
+    this.windows[0].style['height'] = '430px'
+    this.renderShipMenu()
+  }
+
+  prepareEnemyField = () => {
+    document.querySelectorAll('.field.enemy .cell').forEach(cell => {
+      if (cell.classList.contains('empty')) {
+        cell.addEventListener('click', event => {
+          this.makeStep(event.target.dataset)
+        })
+      }
+    })
+  }
+
+  changeEnemyCellClass = (x, y, classCode) => {
+    const cell = document.querySelectorAll('.field.enemy .cell')[x + y * GameParams.fieldSize.width]
+
+    let newCell = document.createElement('div')
+    newCell.className = `cell ${GameParams.codeClass[classCode]}`
+    newCell.dataset.x = x
+    newCell.dataset.y = y
+    cell.parentNode.replaceChild(newCell, cell)
+  }
+
+  changeCellClass = (x, y, classCode) => {
+    this.cells[x + y * GameParams.fieldSize.width].className =
+      `cell ${GameParams.codeClass[classCode]}`
   }
 }

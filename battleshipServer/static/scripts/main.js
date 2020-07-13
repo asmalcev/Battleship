@@ -15,10 +15,9 @@ const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
 const roomID = document.querySelector('[data-roomID]').value
 const playerID = document.querySelector('[data-playerID]').value
 let opponentID = undefined
+let opponentState = undefined
 
-const msg = {
-  type: 'check',
-}
+let socketMSG = {type: 'check'}
 
 let game = new Game()
 
@@ -28,6 +27,12 @@ const changeStatus = (statusIconClass, statusQualityText) => {
 
   status.classList.add(statusIconClass)
   quality.innerHTML = statusQualityText
+}
+
+const changeOpponentState = status => {
+  opponentState = status
+  document.querySelector('#opponent-state span')
+    .innerHTML = status
 }
 
 const sendDeleteRequest = () => {
@@ -58,6 +63,20 @@ const closeModal = () => {
   document.querySelector('.modal-wrapper').style['display'] = 'none'
 }
 
+const gameStart = field => {
+  socketMSG = {
+    type: 'field',
+    data: field
+  }
+}
+
+const makeStep = data => {
+  socketMSG = {
+    type: 'step',
+    data: {x: data.x, y: data.y} 
+  }
+}
+
 document.querySelector('#quit').addEventListener('click', sendDeleteRequest)
 
 let socket = new WebSocket(`ws://${window.location.host}/game/${roomID}`)
@@ -71,18 +90,19 @@ socket.onopen = event => {
   }
 
   socket.send(JSON.stringify(initialMSG))
-  socket.send(JSON.stringify(msg))
+  socket.send(JSON.stringify(socketMSG))
 }
 
 socket.onmessage = event => {
-  // console.log(event)
-
   const response = JSON.parse(event.data)
   if (response.type === 'initial') {
-    // response.playerField = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-    // response.opponentField = "0000000020000000000003000000020300000000000000000200000000000000200400000000040002000004000000000000"
-    game.init(response.playerField, response.opponentField, disableGame)
-    // game.init(response.playerField, response.opponentField, () => {})
+    game.init(
+      response.playerField,
+      response.opponentField,
+      gameStart,
+      disableGame,
+      makeStep
+    )
   } else if (response.type === 'warning') {
     switch(response.code) {
       case 1: // room has been deleted
@@ -97,11 +117,7 @@ socket.onmessage = event => {
     if (response.opponent !== "None" && opponentID === undefined) {
       opponentID = response.opponent
       openModal('You are not alone!',
-          `People in room:
-            <ul>
-              <li>${playerID}</li>
-              <li>${opponentID}</li>
-            </ul>`,
+          `Also in room: ${opponentID}`,
           'Ok :)',
           closeModal)
       enableGame()
@@ -113,6 +129,18 @@ socket.onmessage = event => {
           closeModal)
       disableGame()
     }
+    changeOpponentState(response.opponentState === "100" ? "offline" : "online")
+    if (response.diff !== undefined) {
+      response.diff.forEach(diffCell => {
+        console.log(diffCell)
+        game.changeCellClass(+diffCell[1] % 10, Math.floor(+diffCell[1] / 10), +diffCell[0])
+      })
+    }
+  } else if (response.type == 'step') {
+    response.coords.forEach(coord => {
+      game.changeEnemyCellClass(+coord.x, +coord.y, +response.classCode)
+    })
+    game.checkField()
   }
 }
 
@@ -126,5 +154,8 @@ socket.onerror = error => {
 }
 
 let checker = setInterval(() => {
-  socket.send(JSON.stringify(msg))
+  socket.send(JSON.stringify(socketMSG))
+  if (socketMSG.type !== 'check') {
+    socketMSG = {type: 'check'}
+  }
 }, 1000)

@@ -108,11 +108,24 @@
   width: 150px;
   outline: none;
 }
-#connection {
+.ship-menu button.reset {
+  margin-bottom: 10px;
+  background-color: #0001;
+  color: #091540;
+  border-color: #091540;
+}
+#network-params {
   position: absolute;
   bottom: 20px;
   right: 20px;
   font-size: 14px;
+  text-align: right;
+}
+#opponent-state {
+  margin-bottom: 12px;
+}
+#connection {
+  position: relative;
 }
 #connection .status {
   position: absolute;

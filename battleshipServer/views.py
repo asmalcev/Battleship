@@ -9,8 +9,11 @@ def getRandomID():
 def index(request):
   # Room.objects.all().delete()
   # Session.objects.all().delete()
-  print(Session.objects.all())
-  print(list(map(lambda x: 'hostID: {0}; guestID: {1}; roomID: {2}'.format(x.hostID, x.guestID, x.roomID) , list(Room.objects.all()))))
+  # print(Session.objects.all())
+  print('###\t###\t###\t######\t###\t###\t###\n')
+  print('\n'.join(list(map(lambda x: 'hostID: {} - {}; guestID: {} - {}; roomID: {}'
+    .format(x.hostID, x.hostStatus, x.guestID, x.guestStatus, x.roomID) , list(Room.objects.all())))))
+  print('\n###\t###\t###\t######\t###\t###\t###')
   playerID = request.session.get('playerID', getRandomID())
   roomID = request.session.get('roomID', None)
   request.session['playerID'] = playerID
@@ -27,7 +30,6 @@ def index(request):
     return render(request, 'server/game.html', context)
 
 def search(request):
-  print(list(map(lambda x: 'hostID: {0}; guestID: {1}; roomID: {2}'.format(x.hostID, x.guestID, x.roomID) , list(Room.objects.all()))))
   msg = request.read()
   ID = int(msg.decode('utf-8'))
   try:
@@ -61,6 +63,9 @@ def quit(request):
       print('Guest leaved room ID: ', request.session['roomID'])
     del request.session['roomID']
   except:
-    del request.session['roomID']
+    try:
+      del request.session['roomID']
+    except:
+      pass
   request.session.modified = True
   return redirect('/')

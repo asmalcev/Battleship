@@ -15,9 +15,14 @@
     <h1>BattleShip</h1>
     <h3>Your id: {{ playerID }}</h3>
     <h3>Room id: {{ roomID }}</h3>
-    <div id="connection">
-      <div class="status"></div>
-      <div class="quality"></div>
+    <div id="network-params">
+      <div id="opponent-state">
+        Opponent: <span>-</span>
+      </div>
+      <div id="connection">
+        <div class="status"></div>
+        <div class="quality"></div>
+      </div>
     </div>
     <input type="text" value="{{ roomID }}" data-roomID hidden>
     <input type="text" value="{{ playerID }}" data-playerID hidden>
