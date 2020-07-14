@@ -18,6 +18,8 @@ async def websocket_application(scope, receive, send):
   # 200 - online
   # 300 - filled his field
   # 400 - should make step
+  # 500 - won
+  # 0   - lost
 
   while True:
     event = await receive()
@@ -99,18 +101,28 @@ async def websocket_application(scope, receive, send):
           response['opponent']      = str(room.guestID)
           response['playerState']   = str(room.hostStatus)
           response['opponentState'] = str(room.guestStatus)
-          diff                      = gm.checkDiff(gm.playerField, room.hostField)
-          if (len(diff) != 0):
-            response['diff'] = diff
-            gm.playerField = room.hostField
+          if gm.checkIfAllPlayerShipsWereKilled():
+            response['type']   = 'theend'
+            response['result'] = 'lost'
+
+          else:
+            diff                      = gm.checkDiff(gm.playerField, room.hostField)
+            if (len(diff) != 0):
+              response['diff'] = diff
+              gm.playerField = room.hostField
         else:
           response['opponent']      = str(room.hostID)
           response['playerState']   = str(room.guestStatus)
           response['opponentState'] = str(room.hostStatus)
-          diff                      = gm.checkDiff(gm.playerField, room.guestField)
-          if (len(diff) != 0):
-            response['diff'] = diff
-            gm.playerField = room.guestField
+          if gm.checkIfAllPlayerShipsWereKilled():
+            response['type']   = 'theend'
+            response['result'] = 'lost'
+
+          else:
+            diff                      = gm.checkDiff(gm.playerField, room.guestField)
+            if (len(diff) != 0):
+              response['diff'] = diff
+              gm.playerField = room.guestField
 
         await send({
           'type': 'websocket.send',
@@ -157,25 +169,34 @@ async def websocket_application(scope, receive, send):
       #################
       
       elif msg['type'] == 'step':
-        response = {
-          'type': 'step'
-        }
+        response = { 'type': 'step' }
         coords = gm.translateXYToNumber(msg['data']['x'], msg['data']['y'])
         response['coords'] = [msg['data']]
 
         if playerIsHost:
           if room.hostStatus == 400:
-            room.guestField  = gm.makeShoot(room.guestField, coords)
-            gm.opponentField    = room.guestField.replace('1', '0')
-            if gm.DID_LAST_SHOOT_KILL_SHIP:
-              response['coords'] = gm.getLastKillShipCoordsLikeXY()
-            if not gm.DID_LAST_SHOOT_DAMAGED_SHIP:
-              room.guestStatus = 400
-              room.hostStatus  = 300
-            room.save()
-            
+            room.guestField = gm.makeShoot(room.guestField, coords)
+            gm.opponentField = room.guestField.replace('1', '0')
 
-            response['classCode'] = gm.opponentField[coords]
+            if gm.checkIfAllOpponentShipsWereKilled():
+              response['type']   = 'theend'
+              response['result'] = 'won'
+              del response['coords']
+
+              await send({
+                'type': 'websocket.send',
+                'text': json.dumps(response)
+              })
+              continue # don't need to send response about last step
+            else:
+              if gm.DID_LAST_SHOOT_KILL_SHIP:
+                response['coords'] = gm.getLastKillShipCoordsLikeXY()
+              if not gm.DID_LAST_SHOOT_DAMAGED_SHIP:
+                room.guestStatus = 400
+                room.hostStatus  = 300
+              room.save()
+              response['classCode'] = gm.opponentField[coords]
+
             await send({
               'type': 'websocket.send',
               'text': json.dumps(response)
@@ -183,16 +204,28 @@ async def websocket_application(scope, receive, send):
 
         else:
           if room.guestStatus == 400:
-            room.hostField   = gm.makeShoot(room.hostField, coords)
-            gm.opponentField    = room.hostField.replace('1', '0')
-            if gm.DID_LAST_SHOOT_KILL_SHIP:
-              response['coords'] = gm.getLastKillShipCoordsLikeXY()
-            if not gm.DID_LAST_SHOOT_DAMAGED_SHIP:
-              room.hostStatus  = 400
-              room.guestStatus = 300
-            room.save()
+            room.hostField = gm.makeShoot(room.hostField, coords)
+            gm.opponentField = room.hostField.replace('1', '0')
 
-            response['classCode'] = gm.opponentField[coords]
+            if gm.checkIfAllOpponentShipsWereKilled():
+              response['type']   = 'theend'
+              response['result'] = 'won'
+              del response['coords']
+
+              await send({
+                'type': 'websocket.send',
+                'text': json.dumps(response)
+              })
+              continue # don't need to send response about last step
+            else:
+              if gm.DID_LAST_SHOOT_KILL_SHIP:
+                response['coords'] = gm.getLastKillShipCoordsLikeXY()
+              if not gm.DID_LAST_SHOOT_DAMAGED_SHIP:
+                room.hostStatus  = 400
+                room.guestStatus = 300
+              room.save()
+              response['classCode'] = gm.opponentField[coords]
+
             await send({
               'type': 'websocket.send',
               'text': json.dumps(response)

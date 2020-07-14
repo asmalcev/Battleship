@@ -243,11 +243,10 @@ export class Game {
 
   checkField = () => {
     document.querySelectorAll('.field.enemy .cell.destroyed-ship').forEach(cell => {
-      const x = +cell.dataset.x
-      const y = +cell.dataset.y
-      getRect(x - 1, y - 1, 3, 3).forEach(coords => {
+      getRect(+cell.dataset.x - 1, +cell.dataset.y - 1, 3, 3).forEach(coords => {
         const i = coords.x + coords.y * GameParams.fieldSize.width
         document.querySelectorAll('.field.enemy .cell')[i].classList.replace('empty', 'blocked')
+        document.querySelectorAll('.field.enemy .cell')[i].removeEventListener('click', this.clickCellListener)
       })
     })
   }
@@ -276,24 +275,22 @@ export class Game {
     this.renderShipMenu()
   }
 
+  clickCellListener = event => {
+    this.makeStep(event.target.dataset)
+  }
+
   prepareEnemyField = () => {
     document.querySelectorAll('.field.enemy .cell').forEach(cell => {
       if (cell.classList.contains('empty')) {
-        cell.addEventListener('click', event => {
-          this.makeStep(event.target.dataset)
-        })
+        cell.addEventListener('click', this.clickCellListener)
       }
     })
   }
 
   changeEnemyCellClass = (x, y, classCode) => {
     const cell = document.querySelectorAll('.field.enemy .cell')[x + y * GameParams.fieldSize.width]
-
-    let newCell = document.createElement('div')
-    newCell.className = `cell ${GameParams.codeClass[classCode]}`
-    newCell.dataset.x = x
-    newCell.dataset.y = y
-    cell.parentNode.replaceChild(newCell, cell)
+    cell.removeEventListener('click', this.clickCellListener)
+    cell.className = `cell ${GameParams.codeClass[classCode]}`
   }
 
   changeCellClass = (x, y, classCode) => {

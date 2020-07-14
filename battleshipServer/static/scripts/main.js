@@ -68,13 +68,15 @@ const gameStart = field => {
     type: 'field',
     data: field
   }
+  sendMessageToServer()
 }
 
 const makeStep = data => {
   socketMSG = {
     type: 'step',
-    data: {x: data.x, y: data.y} 
+    data: {x: data.x, y: data.y}
   }
+  sendMessageToServer()
 }
 
 document.querySelector('#quit').addEventListener('click', sendDeleteRequest)
@@ -95,6 +97,7 @@ socket.onopen = event => {
 
 socket.onmessage = event => {
   const response = JSON.parse(event.data)
+  // if (response.type !== 'check' || response.diff !== undefined) console.log(response)
   if (response.type === 'initial') {
     game.init(
       response.playerField,
@@ -132,7 +135,6 @@ socket.onmessage = event => {
     changeOpponentState(response.opponentState === "100" ? "offline" : "online")
     if (response.diff !== undefined) {
       response.diff.forEach(diffCell => {
-        console.log(diffCell)
         game.changeCellClass(+diffCell[1] % 10, Math.floor(+diffCell[1] / 10), +diffCell[0])
       })
     }
@@ -141,6 +143,23 @@ socket.onmessage = event => {
       game.changeEnemyCellClass(+coord.x, +coord.y, +response.classCode)
     })
     game.checkField()
+  } else if (response.type == 'theend') {
+    const modalMSG = {}
+    if (response.result === 'won') {
+      modalMSG.title = 'Congratulations!'
+      modalMSG.text = 'Obviously, you did it, you won!'
+      modalMSG.btn = 'Thx'
+    } else {
+      modalMSG.title = 'Oh no...'
+      modalMSG.text = 'Seems like you lost this game :('
+      modalMSG.btn = `I'll try another time`
+    }
+    openModal(modalMSG.title,
+          modalMSG.text,
+          modalMSG.btn,
+          closeModal)
+    clearInterval(checker)
+    disableGame()
   }
 }
 
@@ -153,9 +172,11 @@ socket.onerror = error => {
   console.error(`[WebSocket error] ${error.message}`)
 }
 
-let checker = setInterval(() => {
+const sendMessageToServer = () => {
   socket.send(JSON.stringify(socketMSG))
   if (socketMSG.type !== 'check') {
     socketMSG = {type: 'check'}
   }
-}, 1000)
+}
+
+let checker = setInterval(sendMessageToServer, 1000)

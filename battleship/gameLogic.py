@@ -18,11 +18,11 @@ class GameLogic:
         changes.append((n, i))
       i += 1
     return changes
-
+  
   def checkDestroyedShip(self, field, coords, direction):
     coords += direction
     if field[coords] == "3":
-      if coords + direction >= 0 and coords + direction < self.FIELD_LENGTH:
+      if 0 <= coords + direction < self.FIELD_LENGTH:
         nextCell = self.checkDestroyedShip(field, coords, direction)
         if nextCell != -1:
           return [coords] + nextCell
@@ -32,7 +32,7 @@ class GameLogic:
     if field[coords] == "1":
       return -1
     return []
-  
+
   def getReplaceList(self, field, coords):
     replaceList = []
     if field[coords] == "3":
@@ -42,21 +42,22 @@ class GameLogic:
         direction = -1
       elif coords + 1 < self.FIELD_LENGTH and field[coords + 1] == "3":
         direction = 1
-      elif coords - self.FIELD_WIDTH > 0 and field[coords - self.FIELD_WIDTH] == "3":
+      elif coords - self.FIELD_WIDTH >= 0 and field[coords - self.FIELD_WIDTH] == "3":
         direction = -self.FIELD_WIDTH
       elif coords + self.FIELD_WIDTH < self.FIELD_LENGTH and field[coords + self.FIELD_WIDTH] == "3":
         direction = self.FIELD_WIDTH
       if direction != 0:
         listDir1 = self.checkDestroyedShip(field, coords, direction)
         listDir2 = []
-        if 0 <= coords - direction < self.FIELD_LENGTH:
+        if 0 <= coords - direction < FIELD_LENGTH:
           listDir2 = self.checkDestroyedShip(field, coords, -direction)
         if listDir1 == -1 or listDir2 == -1:
           return []
         replaceList = listDir1 + listDir2
       if replaceList != -1:
         if replaceList == []:
-          if all(map(lambda x: field[x] != "1", filter(lambda x: 0 < x < self.FIELD_LENGTH, [coords - 1, coords + 1, coords - self.FIELD_WIDTH, coords + self.FIELD_WIDTH]))):
+          if all(map(lambda x: field[x] != "1",
+            filter(lambda x: 0 <= x < self.FIELD_LENGTH, [coords - 1, coords + 1, coords - self.FIELD_WIDTH, coords + self.FIELD_WIDTH]))):
             replaceList = [coords]
             self.DID_LAST_SHOOT_KILL_SHIP = True
             self.LAST_KILL_SHIP_COORDS = replaceList
@@ -83,3 +84,9 @@ class GameLogic:
 
   def translateXYToNumber(self, x, y):
     return int(x) + int(y) * self.FIELD_WIDTH
+
+  def checkIfAllPlayerShipsWereKilled(self):
+    return self.playerField.count('4') == 20
+
+  def checkIfAllOpponentShipsWereKilled(self):
+    return self.opponentField.count('4') == 20
