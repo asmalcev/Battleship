@@ -58,3 +58,52 @@
   font-size: 20px;
   margin-bottom: 8px;
 }
+#gamelog {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 999;
+}
+.log {
+  background-color: #fff;
+  box-shadow: 0 0 10px #0004;
+  padding: 12px;
+  border-radius: 12px;
+  position: relative;
+  padding-right: 36px;
+  width: 200px;
+  transition: .3s;
+  margin-bottom: 6px;
+}
+.log:nth-last-child() {
+  margin-bottom: 0;
+}
+.log:hover {
+  background-color: #f0f0f0;
+}
+.log button {
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 12px;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  outline: none;
+}
+.log button::before, .log button::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 2px;
+  background-color: #333333;
+  top: 8px;
+  left: 1px;
+  transform: rotate(45deg);
+}
+.log button::after {
+  transform: rotate(-45deg);
+
+}

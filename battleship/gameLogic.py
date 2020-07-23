@@ -49,7 +49,7 @@ class GameLogic:
       if direction != 0:
         listDir1 = self.checkDestroyedShip(field, coords, direction)
         listDir2 = []
-        if 0 <= coords - direction < FIELD_LENGTH:
+        if 0 <= coords - direction < self.FIELD_LENGTH:
           listDir2 = self.checkDestroyedShip(field, coords, -direction)
         if listDir1 == -1 or listDir2 == -1:
           return []

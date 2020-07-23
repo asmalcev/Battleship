@@ -9,17 +9,20 @@ const enableGame = () => {
 }
 
 import {Game} from './Game.js'
+import {GameLog} from './GameLog.js'
 
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
 
 const roomID = document.querySelector('[data-roomID]').value
 const playerID = document.querySelector('[data-playerID]').value
 let opponentID = undefined
-let opponentState = undefined
+let playerStatus = undefined
 
 let socketMSG = {type: 'check'}
+let waintingForResponseToStep = false
 
 let game = new Game()
+let loger = new GameLog('#gamelog')
 
 const changeStatus = (statusIconClass, statusQualityText) => {
   const status = document.querySelector('#connection .status')
@@ -30,7 +33,6 @@ const changeStatus = (statusIconClass, statusQualityText) => {
 }
 
 const changeOpponentState = status => {
-  opponentState = status
   document.querySelector('#opponent-state span')
     .innerHTML = status
 }
@@ -72,11 +74,14 @@ const gameStart = field => {
 }
 
 const makeStep = data => {
-  socketMSG = {
-    type: 'step',
-    data: {x: data.x, y: data.y}
+  if (!waintingForResponseToStep) {
+    waintingForResponseToStep = true
+    socketMSG = {
+      type: 'step',
+      data: {x: data.x, y: data.y}
+    }
+    sendMessageToServer()
   }
-  sendMessageToServer()
 }
 
 document.querySelector('#quit').addEventListener('click', sendDeleteRequest)
@@ -124,7 +129,7 @@ socket.onmessage = event => {
           'Ok :)',
           closeModal)
       enableGame()
-    } else if (response.opponent === "None" && opponentID !== undefined) {
+    } else if (response.opponent === 'None' && opponentID !== undefined) {
       opponentID = undefined
       openModal('Opponent leaved',
           '',
@@ -132,17 +137,32 @@ socket.onmessage = event => {
           closeModal)
       disableGame()
     }
-    changeOpponentState(response.opponentState === "100" ? "offline" : "online")
+    if (response.playerState === '400' && response.playerState !== playerStatus) {
+      playerStatus = response.playerState
+      loger.add('Your turn!')
+    }
+    changeOpponentState(response.opponentState === '100' ? 'offline' : 'online')
     if (response.diff !== undefined) {
       response.diff.forEach(diffCell => {
         game.changeCellClass(+diffCell[1] % 10, Math.floor(+diffCell[1] / 10), +diffCell[0])
       })
+      game.checkPlayerField()
     }
   } else if (response.type == 'step') {
+    waintingForResponseToStep = false
     response.coords.forEach(coord => {
       game.changeEnemyCellClass(+coord.x, +coord.y, +response.classCode)
     })
-    game.checkField()
+    game.checkOpponentField()
+    if (response.classCode === '3') {
+      loger.add(`You hitted enemy's ship!`)
+    } else if (response.classCode === '4') {
+      console.log('destroyed ship with length ', response.coords.length)
+      loger.add(`You destroyed enemy's ship!`)
+    } else {
+      loger.add(`You missed!`)
+      playerStatus = '300'
+    }
   } else if (response.type == 'theend') {
     const modalMSG = {}
     if (response.result === 'won') {

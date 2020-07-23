@@ -22,13 +22,6 @@ const getRect = (x, y, w, h) => {
   return arr
 }
 
-const changeCellsClass = (arr, oldClassName, newClassName) => {
-  arr.forEach(cell => {
-    cells[cell.x + cell.y * GameParams.fieldSize.width]
-      .classList.replace(oldClassName, newClassName)
-  })
-}
-
 const clearHoveredCells = () => {
   document.querySelectorAll('.field.player .cell.ship:not([data-ship])').forEach(cell => {
     cell.classList.replace('ship', 'empty')
@@ -39,6 +32,10 @@ const clearField = () => {
   document.querySelectorAll('.field.player .cell.ship:not([data-ship])').forEach(cell => {
     cell.classList.replace('ship', 'empty')
   })
+}
+
+const getRandomNumber = (min, max) => {
+  return Math.floor(min + Math.random() * (max + 1 - min));
 }
 
 export class Game {
@@ -58,6 +55,11 @@ export class Game {
     this.resetBtn.innerHTML = 'Reset'
     this.resetBtn.classList.add('reset')
     this.resetBtn.addEventListener('click', this.reset)
+
+    this.randomizeBtn = document.createElement('button')
+    this.randomizeBtn.innerHTML = 'Randomize'
+    this.randomizeBtn.classList.add('reset')
+    this.randomizeBtn.addEventListener('click', this.randomizeShipPlacement)
   }
 
   init(
@@ -82,7 +84,8 @@ export class Game {
         `<div class="cell ${GameParams.codeClass[opponentField[i]]}" data-x="${i % 10}" data-y="${Math.floor(i / 10)}"></div>`
     }
     this.cells = document.querySelectorAll('.field.player .cell')
-    this.checkField()
+    this.checkOpponentField()
+    this.checkPlayerField()
 
     if (playerField.search(/[^0]/) == -1) {
       this.ships = GameParams.ships.map(ship => { return { id: ship.id, count: ship.count } })
@@ -106,7 +109,7 @@ export class Game {
   }
 
   handleShipPlacement = event => {
-    if (this.choosenShip != null && this.possibleToPlaceShip) {
+    if (this.choosenShip !== null && this.possibleToPlaceShip) {
       const target = event.target
   
       if (this.shipRotation) {
@@ -122,7 +125,7 @@ export class Game {
       }
   
       this.ships[
-        this.ships.findIndex(ship => ship.id == this.choosenShip.id)
+        this.ships.findIndex(ship => ship.id === +this.choosenShip.id)
       ].count--
       this.ships = this.ships.filter(ship => ship.count > 0)
       this.choosenShip = null
@@ -132,7 +135,7 @@ export class Game {
       })
       this.playerField.style['cursor'] = "auto"
       this.renderShipMenu()
-      if (this.ships.length == 0) {
+      if (this.ships.length === 0) {
         this.windows[0].childNodes[1].style['display'] = 'none'
         this.windows[0].style['height'] = 'auto'
       }
@@ -145,7 +148,7 @@ export class Game {
       .querySelectorAll('.field-window ul li.active')
       .forEach(active => active.classList.remove('active'))
   
-    if (this.choosenShip == null || this.choosenShip.id != id) {
+    if (this.choosenShip === null || this.choosenShip.id !== id) {
       event.target.classList.add('active')
       this.choosenShip = {}
       this.choosenShip.id = id
@@ -194,14 +197,14 @@ export class Game {
     this.possibleToPlaceShip = true
     if (this.shipRotation) {
       getRect(x - 1, y - 1, 3, this.choosenShip.length + 2).forEach(cell => {
-        if (this.cells[cell.x + cell.y * GameParams.fieldSize.width].dataset.ship != undefined) {
+        if (this.cells[cell.x + cell.y * GameParams.fieldSize.width].dataset.ship !== undefined) {
           this.possibleToPlaceShip = false
           return
         }
       })
     } else {
       getRect(x - 1, y - 1, this.choosenShip.length + 2, 3).forEach(cell => {
-        if (this.cells[cell.x + cell.y * GameParams.fieldSize.width].dataset.ship != undefined) {
+        if (this.cells[cell.x + cell.y * GameParams.fieldSize.width].dataset.ship !== undefined) {
           this.possibleToPlaceShip = false
           return
         }
@@ -216,9 +219,9 @@ export class Game {
   }
 
   renderShipMenu = () => {
-    if (this.ships.length == 0) {
+    if (this.ships.length === 0) {
       this.shipMenu.innerHTML = ''
-      this.ctrlBtn.innerHTML = 'Start Game'
+      this.ctrlBtn.innerHTML  = 'Start Game'
       this.ctrlBtn.removeEventListener('click', this.changeRotation)
       this.ctrlBtn.addEventListener('click', this.startGame)
 
@@ -234,6 +237,7 @@ export class Game {
         + '</ul>'
   
       this.shipMenu.appendChild(this.ctrlBtn)
+      this.shipMenu.appendChild(this.randomizeBtn)
   
       document.querySelectorAll('.field-window ul li').forEach(ship => {
         ship.addEventListener('click', this.handleShipChoose)
@@ -241,12 +245,21 @@ export class Game {
     }
   }
 
-  checkField = () => {
+  checkOpponentField = () => {
     document.querySelectorAll('.field.enemy .cell.destroyed-ship').forEach(cell => {
       getRect(+cell.dataset.x - 1, +cell.dataset.y - 1, 3, 3).forEach(coords => {
         const i = coords.x + coords.y * GameParams.fieldSize.width
         document.querySelectorAll('.field.enemy .cell')[i].classList.replace('empty', 'blocked')
         document.querySelectorAll('.field.enemy .cell')[i].removeEventListener('click', this.clickCellListener)
+      })
+    })
+  }
+
+  checkPlayerField = () => {
+    document.querySelectorAll('.field.player .cell.destroyed-ship').forEach(cell => {
+      getRect(+cell.dataset.x - 1, +cell.dataset.y - 1, 3, 3).forEach(coords => {
+        const i = coords.x + coords.y * GameParams.fieldSize.width
+        document.querySelectorAll('.field.player .cell')[i].classList.replace('empty', 'blocked')
       })
     })
   }
@@ -296,5 +309,20 @@ export class Game {
   changeCellClass = (x, y, classCode) => {
     this.cells[x + y * GameParams.fieldSize.width].className =
       `cell ${GameParams.codeClass[classCode]}`
+  }
+
+  randomizeShipPlacement = () => {
+    while (this.ships.length !== 0) {
+      document.querySelector('.ship-menu ul li').click()
+      const cell = this.cells[getRandomNumber(0, GameParams.fieldSize.width * GameParams.fieldSize.height - 1)]
+      cell.dispatchEvent(new Event('mouseover'))
+      if (this.possibleToPlaceShip) {
+        cell.click()
+      } else {
+        this.changeRotation()
+        cell.dispatchEvent(new Event('mouseover'))
+        cell.click()
+      }
+    }
   }
 }

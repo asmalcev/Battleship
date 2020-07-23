@@ -101,12 +101,13 @@ async def websocket_application(scope, receive, send):
           response['opponent']      = str(room.guestID)
           response['playerState']   = str(room.hostStatus)
           response['opponentState'] = str(room.guestStatus)
-          if gm.checkIfAllPlayerShipsWereKilled():
+          if room.guestStatus == 500:
             response['type']   = 'theend'
             response['result'] = 'lost'
+            room.hostStatus = 0
 
           else:
-            diff                      = gm.checkDiff(gm.playerField, room.hostField)
+            diff = gm.checkDiff(gm.playerField, room.hostField)
             if (len(diff) != 0):
               response['diff'] = diff
               gm.playerField = room.hostField
@@ -114,12 +115,13 @@ async def websocket_application(scope, receive, send):
           response['opponent']      = str(room.hostID)
           response['playerState']   = str(room.guestStatus)
           response['opponentState'] = str(room.hostStatus)
-          if gm.checkIfAllPlayerShipsWereKilled():
+          if room.hostStatus == 500:
             response['type']   = 'theend'
             response['result'] = 'lost'
+            room.guestStatus = 0
 
           else:
-            diff                      = gm.checkDiff(gm.playerField, room.guestField)
+            diff = gm.checkDiff(gm.playerField, room.guestField)
             if (len(diff) != 0):
               response['diff'] = diff
               gm.playerField = room.guestField
@@ -179,9 +181,12 @@ async def websocket_application(scope, receive, send):
             gm.opponentField = room.guestField.replace('1', '0')
 
             if gm.checkIfAllOpponentShipsWereKilled():
+              room.hostStatus    = 500
+              room.guestStatus   = 0
               response['type']   = 'theend'
               response['result'] = 'won'
               del response['coords']
+              room.save()
 
               await send({
                 'type': 'websocket.send',
@@ -208,9 +213,12 @@ async def websocket_application(scope, receive, send):
             gm.opponentField = room.hostField.replace('1', '0')
 
             if gm.checkIfAllOpponentShipsWereKilled():
+              room.guestStatus   = 500
+              room.hostStatus    = 0
               response['type']   = 'theend'
               response['result'] = 'won'
               del response['coords']
+              room.save()
 
               await send({
                 'type': 'websocket.send',
