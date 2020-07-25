@@ -5,6 +5,7 @@
   flex-wrap: wrap;
   padding: 30px 5px;
   position: relative;
+  gap: 12px;
 }
 .field {
   display: flex;
@@ -16,7 +17,7 @@
   align-items: center;
   background-color: #3D518C;
   border-radius: 4px;
-  margin: 0px 10px;
+  margin: 20px 10px;
 }
 .field.enemy {
   cursor: url('../images/aim.png') 15 15, pointer;
@@ -183,3 +184,54 @@
   cursor: not-allowed;
   display: none;
 }
+#playerlosses, #opponentlosses {
+  margin: 6px 12px;
+}
+#playerlosses p, #opponentlosses p {
+  margin: 4px 0;
+}
+.field-window h5 {
+  margin: 6px 12px;
+}
+.wrapper:last-child .field-window {
+  filter: grayscale(1) blur(2px);
+  cursor: not-allowed;
+  user-select: none;
+}
+.field .cell:nth-child(-n + 10)::before {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.field .cell:nth-child(1)::before {
+  content: '1';
+}
+.field .cell:nth-child(2)::before { content: '2'; }
+.field .cell:nth-child(3)::before { content: '3'; }
+.field .cell:nth-child(4)::before { content: '4'; }
+.field .cell:nth-child(5)::before { content: '5'; }
+.field .cell:nth-child(6)::before { content: '6'; }
+.field .cell:nth-child(7)::before { content: '7'; }
+.field .cell:nth-child(8)::before { content: '8'; }
+.field .cell:nth-child(9)::before { content: '9'; }
+.field .cell:nth-child(10)::before { content: '10'; }
+
+.field .cell:nth-child(10n + 1)::after {
+  position: absolute;
+  top: 50%;
+  left: -21px;
+  transform: translateY(-50%);
+}
+.field .cell:nth-child(1)::after {
+  content: 'A';
+}
+.field .cell:nth-child(11)::after { content: 'B'; }
+.field .cell:nth-child(21)::after { content: 'C'; }
+.field .cell:nth-child(31)::after { content: 'D'; }
+.field .cell:nth-child(41)::after { content: 'E'; }
+.field .cell:nth-child(51)::after { content: 'F'; }
+.field .cell:nth-child(61)::after { content: 'G'; }
+.field .cell:nth-child(71)::after { content: 'H'; }
+.field .cell:nth-child(81)::after { content: 'I'; }
+.field .cell:nth-child(91)::after { content: 'J'; }

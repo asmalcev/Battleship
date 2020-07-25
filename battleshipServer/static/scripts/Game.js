@@ -60,6 +60,13 @@ export class Game {
     this.randomizeBtn.innerHTML = 'Randomize'
     this.randomizeBtn.classList.add('reset')
     this.randomizeBtn.addEventListener('click', this.randomizeShipPlacement)
+
+    this.playerLosses = document.querySelector('#playerlosses')
+    this.opponentLosses = document.querySelector('#opponentlosses')
+    this.destroyedShips = {
+      players: [],
+      opponents: []
+    }
   }
 
   init(
@@ -324,5 +331,39 @@ export class Game {
         cell.click()
       }
     }
+  }
+
+  renderPlayerLosses = () => {
+    this.playerLosses.innerHTML =
+      this.destroyedShips.players.map(s => `<p>${s.name}${s.count > 1 ? ' x' + s.count : ''}</p>`).join('')
+  }
+
+  renderOpponentLosses = () => {
+    this.opponentLosses.innerHTML =
+      this.destroyedShips.opponents.map(s => `<p>${s.name}${s.count > 1 ? ' x' + s.count : ''}</p>`).join('')
+  }
+
+  addPlayerLosses = (lengthOfShip) => {
+    let shipName = GameParams.ships[4 - lengthOfShip].name
+    for (let sh of this.destroyedShips.players) {
+      if (sh.name === shipName) {
+        sh.count++
+        return
+      }
+    }
+    this.destroyedShips.players.push({name: shipName, count: 1})
+    this.renderPlayerLosses()
+  }
+  
+  addOpponentLosses = (lengthOfShip) => {
+    let shipName = GameParams.ships[4 - lengthOfShip].name
+    for (let sh of this.destroyedShips.opponents) {
+      if (sh.name === shipName) {
+        sh.count++
+        return
+      }
+    }
+    this.destroyedShips.opponents.push({name: shipName, count: 1})
+    this.renderOpponentLosses()
   }
 }

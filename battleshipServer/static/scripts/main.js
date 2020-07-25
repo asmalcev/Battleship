@@ -74,7 +74,7 @@ const gameStart = field => {
 }
 
 const makeStep = data => {
-  if (!waintingForResponseToStep) {
+  if (!waintingForResponseToStep && playerStatus == '400') {
     waintingForResponseToStep = true
     socketMSG = {
       type: 'step',
@@ -146,6 +146,7 @@ socket.onmessage = event => {
       response.diff.forEach(diffCell => {
         game.changeCellClass(+diffCell[1] % 10, Math.floor(+diffCell[1] / 10), +diffCell[0])
       })
+      // game.addPlayerLosses(response.diff.length)
       game.checkPlayerField()
     }
   } else if (response.type == 'step') {
@@ -155,10 +156,10 @@ socket.onmessage = event => {
     })
     game.checkOpponentField()
     if (response.classCode === '3') {
-      loger.add(`You hitted enemy's ship!`)
+      loger.add(`You hitted an enemy ship!`)
     } else if (response.classCode === '4') {
-      console.log('destroyed ship with length ', response.coords.length)
-      loger.add(`You destroyed enemy's ship!`)
+      // game.addOpponentLosses(response.coords.length)
+      loger.add(`You destroyed an enemy ship!`)
     } else {
       loger.add(`You missed!`)
       playerStatus = '300'
