@@ -18,11 +18,12 @@ class GameLogic:
         changes.append((n, i))
       i += 1
     return changes
-  
+
   def checkDestroyedShip(self, field, coords, direction):
     coords += direction
     if field[coords] == "3":
-      if 0 <= coords + direction < self.FIELD_LENGTH:
+      if 0 <= coords + direction < self.FIELD_LENGTH \
+        and coords // self.FIELD_WIDTH == (coords + direction) // self.FIELD_WIDTH:
         nextCell = self.checkDestroyedShip(field, coords, direction)
         if nextCell != -1:
           return [coords] + nextCell
@@ -38,26 +39,40 @@ class GameLogic:
     if field[coords] == "3":
       self.DID_LAST_SHOOT_DAMAGED_SHIP = True
       direction = 0
-      if coords - 1 >= 0 and field[coords - 1] == "3":
+      notLeftBoundaryIndex = coords % self.FIELD_WIDTH != 0
+      notRightBoundaryIndex = coords % self.FIELD_WIDTH != 9
+
+      if notLeftBoundaryIndex and coords - 1 >= 0 and field[coords - 1] == "3":
         direction = -1
-      elif coords + 1 < self.FIELD_LENGTH and field[coords + 1] == "3":
+      elif notRightBoundaryIndex and coords + 1 < self.FIELD_LENGTH and field[coords + 1] == "3":
         direction = 1
       elif coords - self.FIELD_WIDTH >= 0 and field[coords - self.FIELD_WIDTH] == "3":
         direction = -self.FIELD_WIDTH
       elif coords + self.FIELD_WIDTH < self.FIELD_LENGTH and field[coords + self.FIELD_WIDTH] == "3":
         direction = self.FIELD_WIDTH
+
       if direction != 0:
         listDir1 = self.checkDestroyedShip(field, coords, direction)
         listDir2 = []
-        if 0 <= coords - direction < self.FIELD_LENGTH:
+
+        if 0 <= coords - direction < self.FIELD_LENGTH \
+          and ((direction == 1 and notLeftBoundaryIndex) \
+          or (direction == -1 and notRightBoundaryIndex)):
           listDir2 = self.checkDestroyedShip(field, coords, -direction)
+
         if listDir1 == -1 or listDir2 == -1:
           return []
         replaceList = listDir1 + listDir2
+
       if replaceList != -1:
         if replaceList == []:
+          cellsToCheck = [coords - self.FIELD_WIDTH, coords + self.FIELD_WIDTH]
+          if notLeftBoundaryIndex:
+            cellsToCheck.append(coords - 1)
+          if notRightBoundaryIndex:
+            cellsToCheck.append(coords + 1)
           if all(map(lambda x: field[x] != "1",
-            filter(lambda x: 0 <= x < self.FIELD_LENGTH, [coords - 1, coords + 1, coords - self.FIELD_WIDTH, coords + self.FIELD_WIDTH]))):
+            filter(lambda x: 0 <= x < self.FIELD_LENGTH, cellsToCheck))):
             replaceList = [coords]
             self.DID_LAST_SHOOT_KILL_SHIP = True
             self.LAST_KILL_SHIP_COORDS = replaceList

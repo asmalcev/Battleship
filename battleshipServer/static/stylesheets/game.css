@@ -198,13 +198,13 @@
   cursor: not-allowed;
   user-select: none;
 }
-.field .cell:nth-child(-n + 10)::before {
+/* .field .cell:nth-child(-n + 10)::before {
   position: absolute;
   top: -25px;
   left: 50%;
   transform: translateX(-50%);
-}
-.field .cell:nth-child(1)::before {
+} */
+/* .field .cell:nth-child(1)::before {
   content: '1';
 }
 .field .cell:nth-child(2)::before { content: '2'; }
@@ -234,4 +234,4 @@
 .field .cell:nth-child(61)::after { content: 'G'; }
 .field .cell:nth-child(71)::after { content: 'H'; }
 .field .cell:nth-child(81)::after { content: 'I'; }
-.field .cell:nth-child(91)::after { content: 'J'; }
+.field .cell:nth-child(91)::after { content: 'J'; } */
