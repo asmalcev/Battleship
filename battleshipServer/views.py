@@ -7,13 +7,6 @@ def getRandomID():
   return int(random() * 900000 + 100000)
 
 def index(request):
-  # Room.objects.all().delete()
-  # Session.objects.all().delete()
-  # print(Session.objects.all())
-  print('###\t###\t###\t######\t###\t###\t###\n')
-  print('\n'.join(list(map(lambda x: 'hostID: {} - {}; guestID: {} - {}; roomID: {}'
-    .format(x.hostID, x.hostStatus, x.guestID, x.guestStatus, x.roomID) , list(Room.objects.all())))))
-  print('\n###\t###\t###\t######\t###\t###\t###')
   playerID = request.session.get('playerID', getRandomID())
   roomID = request.session.get('roomID', None)
   request.session['playerID'] = playerID
