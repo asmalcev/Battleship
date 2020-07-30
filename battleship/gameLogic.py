@@ -1,5 +1,3 @@
-
-
 class GameLogic:
   playerField = None
   opponentField = None
@@ -19,67 +17,74 @@ class GameLogic:
       i += 1
     return changes
 
+  def checkCellsConsistent(self, coord1, coord2):
+    if abs(coord1 - coord2) == 1:
+      return coord1 // self.FIELD_WIDTH == coord2 // self.FIELD_WIDTH
+    return True
+
   def checkDestroyedShip(self, field, coords, direction):
     coords += direction
     if field[coords] == "3":
       if 0 <= coords + direction < self.FIELD_LENGTH \
-        and coords // self.FIELD_WIDTH == (coords + direction) // self.FIELD_WIDTH:
+        and self.checkCellsConsistent(coords, coords + direction):
         nextCell = self.checkDestroyedShip(field, coords, direction)
+
         if nextCell != -1:
           return [coords] + nextCell
         else:
           return -1
+
       return [coords]
     if field[coords] == "1":
       return -1
+
     return []
 
   def getReplaceList(self, field, coords):
     replaceList = []
-    if field[coords] == "3":
+
+    if field[coords] == '3':
       self.DID_LAST_SHOOT_DAMAGED_SHIP = True
       direction = 0
       notLeftBoundaryIndex = coords % self.FIELD_WIDTH != 0
       notRightBoundaryIndex = coords % self.FIELD_WIDTH != 9
 
-      if notLeftBoundaryIndex and coords - 1 >= 0 and field[coords - 1] == "3":
-        direction = -1
-      elif notRightBoundaryIndex and coords + 1 < self.FIELD_LENGTH and field[coords + 1] == "3":
-        direction = 1
-      elif coords - self.FIELD_WIDTH >= 0 and field[coords - self.FIELD_WIDTH] == "3":
-        direction = -self.FIELD_WIDTH
-      elif coords + self.FIELD_WIDTH < self.FIELD_LENGTH and field[coords + self.FIELD_WIDTH] == "3":
-        direction = self.FIELD_WIDTH
+      checkList = [coords - self.FIELD_WIDTH, coords + self.FIELD_WIDTH]
+
+      if notLeftBoundaryIndex: checkList.append(coords - 1)
+      if notRightBoundaryIndex: checkList.append(coords + 1)
+
+      checkList = list(filter(lambda coord: 0 <= coord < self.FIELD_LENGTH, checkList))
+
+      for ch in checkList:
+        if field[ch] == '3':
+          direction = ch - coords
 
       if direction != 0:
-        listDir1 = self.checkDestroyedShip(field, coords, direction)
-        listDir2 = []
+        dirList1 = []
+        dirList2 = []
+
+        dirList1 = self.checkDestroyedShip(field, coords, direction)
+        dirList2 = []
 
         if 0 <= coords - direction < self.FIELD_LENGTH \
-          and ((direction == 1 and notLeftBoundaryIndex) \
-          or (direction == -1 and notRightBoundaryIndex)):
-          listDir2 = self.checkDestroyedShip(field, coords, -direction)
+          and self.checkCellsConsistent(coords, coords - direction):
+          dirList2 = self.checkDestroyedShip(field, coords, -direction)
 
-        if listDir1 == -1 or listDir2 == -1:
+        if dirList1 == -1 or dirList2 == -1:
           return []
-        replaceList = listDir1 + listDir2
+        replaceList = dirList1 + dirList2
 
-      if replaceList != -1:
-        if replaceList == []:
-          cellsToCheck = [coords - self.FIELD_WIDTH, coords + self.FIELD_WIDTH]
-          if notLeftBoundaryIndex:
-            cellsToCheck.append(coords - 1)
-          if notRightBoundaryIndex:
-            cellsToCheck.append(coords + 1)
-          if all(map(lambda x: field[x] != "1",
-            filter(lambda x: 0 <= x < self.FIELD_LENGTH, cellsToCheck))):
-            replaceList = [coords]
-            self.DID_LAST_SHOOT_KILL_SHIP = True
-            self.LAST_KILL_SHIP_COORDS = replaceList
-        else:
-          replaceList += [coords]
+      if replaceList == []:
+        if all(map(lambda x: field[x] != "1", checkList)):
+          replaceList = [coords]
           self.DID_LAST_SHOOT_KILL_SHIP = True
           self.LAST_KILL_SHIP_COORDS = replaceList
+      else:
+        replaceList += [coords]
+        self.DID_LAST_SHOOT_KILL_SHIP = True
+        self.LAST_KILL_SHIP_COORDS = replaceList
+
     return [] if replaceList == -1 else replaceList
 
   def makeShoot(self, field, coords):

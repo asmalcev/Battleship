@@ -8,21 +8,10 @@ const enableGame = () => {
   document.querySelector('#wall').style['display'] = 'none'
 }
 
-import {Game} from './Game.js'
-import {GameLog} from './GameLog.js'
-
-const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
-
-const roomID = document.querySelector('[data-roomID]').value
-const playerID = document.querySelector('[data-playerID]').value
-let opponentID = undefined
-let playerStatus = undefined
-
-let socketMSG = {type: 'check'}
-let waintingForResponseToStep = false
-
-let game = new Game()
-let loger = new GameLog('#gamelog')
+const changeOpponentState = status => {
+  document.querySelector('#opponent-state span')
+    .innerHTML = status
+}
 
 const changeStatus = (statusIconClass, statusQualityText) => {
   const status = document.querySelector('#connection .status')
@@ -30,25 +19,6 @@ const changeStatus = (statusIconClass, statusQualityText) => {
 
   status.classList.add(statusIconClass)
   quality.innerHTML = statusQualityText
-}
-
-const changeOpponentState = status => {
-  document.querySelector('#opponent-state span')
-    .innerHTML = status
-}
-
-const sendDeleteRequest = () => {
-  let request = new Request(
-    'quit',
-    { headers: {'X-CSRFToken': csrftoken} }
-  )
-
-  fetch(request, {
-    method: 'DELETE',
-    mode: 'same-origin'
-  }).then(response => {
-    document.location.replace(response.url)
-  })
 }
 
 const openModal = (h3Text, pText, btnText, btnClickedFunc) => {
@@ -65,25 +35,35 @@ const closeModal = () => {
   document.querySelector('.modal-wrapper').style['display'] = 'none'
 }
 
-const gameStart = field => {
-  socketMSG = {
-    type: 'field',
-    data: field
-  }
-  sendMessageToServer()
-}
+import {Game} from './Game.js'
+import {GameLog} from './GameLog.js'
 
-const makeStep = data => {
-  if (!waintingForResponseToStep && playerStatus == '400') {
-    waintingForResponseToStep = true
-    socketMSG = {
-      type: 'step',
-      data: {x: data.x, y: data.y}
-    }
-    sendMessageToServer()
-  }
-}
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
 
+const roomID = document.querySelector('[data-roomID]').value
+const playerID = document.querySelector('[data-playerID]').value
+let opponentID = undefined
+let playerStatus = undefined
+
+let socketMSG = {type: 'check'}
+let waintingForResponseToStep = false
+
+let game = new Game()
+let loger = new GameLog('#gamelog')
+
+const sendDeleteRequest = () => {
+  let request = new Request(
+    'quit',
+    { headers: {'X-CSRFToken': csrftoken} }
+  )
+
+  fetch(request, {
+    method: 'DELETE',
+    mode: 'same-origin'
+  }).then(response => {
+    document.location.replace(response.url)
+  })
+}
 document.querySelector('#quit').addEventListener('click', sendDeleteRequest)
 
 let socket = new WebSocket(`ws://${window.location.host}/game/${roomID}`)
@@ -102,26 +82,12 @@ socket.onopen = event => {
 
 socket.onmessage = event => {
   const response = JSON.parse(event.data)
-  // if (response.type !== 'check' || response.diff !== undefined) console.log(response)
-  if (response.type === 'initial') {
-    game.init(
-      response.playerField,
-      response.opponentField,
-      gameStart,
-      disableGame,
-      makeStep
-    )
-  } else if (response.type === 'warning') {
-    switch(response.code) {
-      case 1: // room has been deleted
-        changeStatus('bad', 'Connection lost')
-        openModal('404',
-          'Seems like host leaved the room and it has been deleted',
-          'Return to lobby',
-          sendDeleteRequest)
-        break;
-    }
-  } else if (response.type == 'check') {
+  /* 
+
+      CHECK MSG RESPONSE
+
+  */
+  if (response.type == 'check') {
     if (response.opponent !== "None" && opponentID === undefined) {
       opponentID = response.opponent
       openModal('You are not alone!',
@@ -149,7 +115,13 @@ socket.onmessage = event => {
       // game.addPlayerLosses(response.diff.length)
       game.checkPlayerField()
     }
-  } else if (response.type == 'step') {
+  }
+  /* 
+
+      STEP MSG RESPONSE
+
+  */
+  else if (response.type == 'step') {
     waintingForResponseToStep = false
     response.coords.forEach(coord => {
       game.changeEnemyCellClass(+coord.x, +coord.y, +response.classCode)
@@ -164,7 +136,43 @@ socket.onmessage = event => {
       loger.add(`You missed!`)
       playerStatus = '300'
     }
-  } else if (response.type == 'theend') {
+  }
+  /* 
+
+      INITIAL MSG RESPONSE
+
+  */
+  else if (response.type === 'initial') {
+    game.init(
+      response.playerField,
+      response.opponentField,
+      gameStart,
+      disableGame,
+      makeStep
+    )
+  } 
+  /* 
+
+      WARNING MSG RESPONSE
+
+  */
+  else if (response.type === 'warning') {
+    switch(response.code) {
+      case 1: // room has been deleted
+        changeStatus('bad', 'Connection lost')
+        openModal('404',
+          'Seems like host leaved the room and it has been deleted',
+          'Return to lobby',
+          sendDeleteRequest)
+        break;
+    }
+  }
+  /* 
+
+      GOT MSG ABOUT WIN / LOSE
+
+  */
+  else if (response.type == 'theend') {
     const modalMSG = {}
     if (response.result === 'won') {
       modalMSG.title = 'Congratulations!'
@@ -201,3 +209,22 @@ const sendMessageToServer = () => {
 }
 
 let checker = setInterval(sendMessageToServer, 1000)
+
+const gameStart = field => {
+  socketMSG = {
+    type: 'field',
+    data: field
+  }
+  sendMessageToServer()
+}
+
+const makeStep = data => {
+  if (!waintingForResponseToStep && playerStatus == '400') {
+    waintingForResponseToStep = true
+    socketMSG = {
+      type: 'step',
+      data: {x: data.x, y: data.y}
+    }
+    sendMessageToServer()
+  }
+}
