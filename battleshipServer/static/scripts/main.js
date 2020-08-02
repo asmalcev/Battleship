@@ -45,7 +45,7 @@ const playerID = document.querySelector('[data-playerID]').value
 let opponentID = undefined
 let playerStatus = undefined
 
-let socketMSG = {type: 'check'}
+let socketMSG = {}
 let waintingForResponseToStep = false
 
 let game = new Game()
@@ -77,18 +77,18 @@ socket.onopen = event => {
   }
 
   socket.send(JSON.stringify(initialMSG))
-  socket.send(JSON.stringify(socketMSG))
 }
 
 socket.onmessage = event => {
   const response = JSON.parse(event.data)
-  /* 
+  console.log(response)
+  /*
 
-      CHECK MSG RESPONSE
+      MODEL CHANGE MSG RESPONSE
 
   */
-  if (response.type == 'check') {
-    if (response.opponent !== "None" && opponentID === undefined) {
+  if (response.type === 'modelChange') {
+    if (response.opponent !== 'None' && opponentID === undefined) {
       opponentID = response.opponent
       openModal('You are not alone!',
           `Also in room: ${opponentID}`,
@@ -121,7 +121,7 @@ socket.onmessage = event => {
       STEP MSG RESPONSE
 
   */
-  else if (response.type == 'step') {
+  else if (response.type === 'step') {
     waintingForResponseToStep = false
     response.coords.forEach(coord => {
       game.changeEnemyCellClass(+coord.x, +coord.y, +response.classCode)
@@ -172,7 +172,7 @@ socket.onmessage = event => {
       GOT MSG ABOUT WIN / LOSE
 
   */
-  else if (response.type == 'theend') {
+  else if (response.type === 'theend') {
     const modalMSG = {}
     if (response.result === 'won') {
       modalMSG.title = 'Congratulations!'
@@ -187,14 +187,12 @@ socket.onmessage = event => {
           modalMSG.text,
           modalMSG.btn,
           closeModal)
-    clearInterval(checker)
     disableGame()
   }
 }
 
 socket.onclose = event => {
   changeStatus('bad', 'Connection lost')
-  clearInterval(checker)
 }
 
 socket.onerror = error => {
@@ -207,8 +205,6 @@ const sendMessageToServer = () => {
     socketMSG = {type: 'check'}
   }
 }
-
-let checker = setInterval(sendMessageToServer, 1000)
 
 const gameStart = field => {
   socketMSG = {

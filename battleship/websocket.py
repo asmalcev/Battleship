@@ -3,6 +3,8 @@ from battleshipServer.models import Room
 
 from battleship.gameLogic import GameLogic
 
+from battleship.websocketModel import WebSocketModel
+
 import json
 
   # PLAYERS STATUS CODES
@@ -25,6 +27,54 @@ class WebsocketApplication:
     self.playerIsHost = None
 
     self.gm = GameLogic()
+
+    self.wsModel = WebSocketModel()
+    self.wsModel.appendListener(self, self.roomId)
+
+  async def notify(self):
+    response = {'type': 'modelChange'}
+
+    try:
+      room = Room.objects.get(pk = self.roomId)
+    except:
+      response = {'type': 'warning', 'code': 1}
+
+      await self.send({
+        'type': 'websocket.send',
+        'text': json.dumps(response)
+      })
+
+    if self.playerIsHost:
+      response['opponent']      = str(room.guestID)
+      response['playerState']   = str(room.hostStatus)
+      response['opponentState'] = str(room.guestStatus)
+      if room.guestStatus == 500:
+        response['type']   = 'theend'
+        response['result'] = 'lost'
+        room.hostStatus = 0
+      else:
+        diff = self.gm.checkDiff(self.gm.playerField, room.hostField)
+        if (len(diff) != 0):
+          response['diff'] = diff
+          self.gm.playerField = room.hostField
+    else:
+      response['opponent']      = str(room.hostID)
+      response['playerState']   = str(room.guestStatus)
+      response['opponentState'] = str(room.hostStatus)
+      if room.hostStatus == 500:
+        response['type']   = 'theend'
+        response['result'] = 'lost'
+        room.guestStatus = 0
+      else:
+        diff = self.gm.checkDiff(self.gm.playerField, room.guestField)
+        if (len(diff) != 0):
+          response['diff'] = diff
+          self.gm.playerField = room.guestField
+
+    await self.send({
+      'type': 'websocket.send',
+      'text': json.dumps(response)
+    })
 
   async def run(self):
     while True:
@@ -89,49 +139,7 @@ class WebsocketApplication:
             'opponentField': self.gm.opponentField
           }
 
-          await self.send({
-            'type': 'websocket.send',
-            'text': json.dumps(response)
-          })
-
-        ##################
-        
-        # check response #
-        
-        ##################
-
-        elif msg['type'] == 'check':
-          response = {'type': 'check'}
-
-          if self.playerIsHost:
-            response['opponent']      = str(room.guestID)
-            response['playerState']   = str(room.hostStatus)
-            response['opponentState'] = str(room.guestStatus)
-            if room.guestStatus == 500:
-              response['type']   = 'theend'
-              response['result'] = 'lost'
-              room.hostStatus = 0
-
-            else:
-              diff = self.gm.checkDiff(self.gm.playerField, room.hostField)
-              if (len(diff) != 0):
-                response['diff'] = diff
-                self.gm.playerField = room.hostField
-          else:
-            response['opponent']      = str(room.hostID)
-            response['playerState']   = str(room.guestStatus)
-            response['opponentState'] = str(room.hostStatus)
-            if room.hostStatus == 500:
-              response['type']   = 'theend'
-              response['result'] = 'lost'
-              room.guestStatus = 0
-
-            else:
-              diff = self.gm.checkDiff(self.gm.playerField, room.guestField)
-              if (len(diff) != 0):
-                response['diff'] = diff
-                self.gm.playerField = room.guestField
-
+          await self.wsModel.notifyListeners(self, self.roomId)
           await self.send({
             'type': 'websocket.send',
             'text': json.dumps(response)
@@ -158,13 +166,13 @@ class WebsocketApplication:
               room.hostStatus = 400
           room.save()
 
-
           response = {
-            'type': 'check',
+            'type': 'modelChange',
             'opponent': str(room.guestID) if self.playerIsHost else str(room.hostID),
             'opponentState': str(room.guestStatus) if self.playerIsHost else str(room.hostStatus)
           }
 
+          await self.wsModel.notifyListeners(self, self.roomId)
           await self.send({
             'type': 'websocket.send',
             'text': json.dumps(response)
@@ -194,11 +202,12 @@ class WebsocketApplication:
                 del response['coords']
                 room.save()
 
+                await self.wsModel.notifyListeners(self, self.roomId)
                 await self.send({
                   'type': 'websocket.send',
                   'text': json.dumps(response)
                 })
-                continue # don't need to self.send response about last step
+                continue # don't need to send response about last step
               else:
                 if self.gm.DID_LAST_SHOOT_KILL_SHIP:
                   response['coords'] = self.gm.getLastKillShipCoordsLikeXY()
@@ -208,6 +217,7 @@ class WebsocketApplication:
                 room.save()
                 response['classCode'] = self.gm.opponentField[coords]
 
+              await self.wsModel.notifyListeners(self, self.roomId)
               await self.send({
                 'type': 'websocket.send',
                 'text': json.dumps(response)
@@ -226,6 +236,7 @@ class WebsocketApplication:
                 del response['coords']
                 room.save()
 
+                await self.wsModel.notifyListeners(self, self.roomId)
                 await self.send({
                   'type': 'websocket.send',
                   'text': json.dumps(response)
@@ -240,6 +251,7 @@ class WebsocketApplication:
                 room.save()
                 response['classCode'] = self.gm.opponentField[coords]
 
+              await self.wsModel.notifyListeners(self, self.roomId)
               await self.send({
                 'type': 'websocket.send',
                 'text': json.dumps(response)
