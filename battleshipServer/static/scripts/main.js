@@ -150,6 +150,21 @@ socket.onmessage = event => {
       disableGame,
       makeStep
     )
+    if (response.opponent !== 'None' && opponentID === undefined) {
+      opponentID = response.opponent
+      openModal('You are not alone!',
+          `Also in room: ${opponentID}`,
+          'Ok :)',
+          closeModal)
+      enableGame()
+    } else if (response.opponent === 'None' && opponentID !== undefined) {
+      opponentID = undefined
+      openModal('Opponent leaved',
+          '',
+          'Ok :(',
+          closeModal)
+      disableGame()
+    }
   } 
   /* 
 

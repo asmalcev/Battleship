@@ -124,20 +124,24 @@ class WebsocketApplication:
         
         ####################
         if msg['type'] == 'initial':
+          response = {'type': 'initial'}
           self.playerID = msg['playerID']
           self.playerIsHost = str(room.hostID) == self.playerID
           if self.playerIsHost:
             self.gm.playerField = room.hostField[:]
             self.gm.opponentField = room.guestField.replace('1', '0')
+            response['opponent']      = str(room.guestID)
+            response['playerState']   = str(room.hostStatus)
+            response['opponentState'] = str(room.guestStatus)
           else:
             self.gm.opponentField = room.hostField.replace('1', '0')
             self.gm.playerField = room.guestField[:]
+            response['opponent']      = str(room.hostID)
+            response['playerState']   = str(room.guestStatus)
+            response['opponentState'] = str(room.hostStatus)
 
-          response = {
-            'type': 'initial',
-            'playerField': self.gm.playerField,
-            'opponentField': self.gm.opponentField
-          }
+          response['playerField'] = self.gm.playerField
+          response['opponentField'] = self.gm.opponentField
 
           await self.wsModel.notifyListeners(self, self.roomId)
           await self.send({
