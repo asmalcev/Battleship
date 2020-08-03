@@ -51,21 +51,6 @@ let waintingForResponseToStep = false
 let game = new Game()
 let loger = new GameLog('#gamelog')
 
-const sendDeleteRequest = () => {
-  let request = new Request(
-    'quit',
-    { headers: {'X-CSRFToken': csrftoken} }
-  )
-
-  fetch(request, {
-    method: 'DELETE',
-    mode: 'same-origin'
-  }).then(response => {
-    document.location.replace(response.url)
-  })
-}
-document.querySelector('#quit').addEventListener('click', sendDeleteRequest)
-
 let socket = new WebSocket(`ws://${window.location.host}/game/${roomID}`)
 
 socket.onopen = event => {
@@ -213,6 +198,26 @@ socket.onclose = event => {
 socket.onerror = error => {
   console.error(`[WebSocket error] ${error.message}`)
 }
+
+const sendDeleteRequest = () => {
+  let request = new Request(
+    'quit',
+    { headers: {'X-CSRFToken': csrftoken} }
+  )
+
+  fetch(request, {
+    method: 'DELETE',
+    mode: 'same-origin'
+  }).then(response => {
+    socketMSG = {
+      type: 'notifyOpponent',
+    }
+    sendMessageToServer()
+
+    document.location.replace(response.url)
+  })
+}
+document.querySelector('#quit').addEventListener('click', sendDeleteRequest)
 
 const sendMessageToServer = () => {
   socket.send(JSON.stringify(socketMSG))

@@ -18,10 +18,22 @@ class WebSocketModel(object):
   def appendListener(self, lster, roomId):
     for lst in self.listenerList:
       if lst.roomId == roomId:
-        lst.player2 = lster
+        if lst.player1 == None:
+          lst.player1 = lster
+        else:
+          lst.player2 = lster
         return
     self.listenerList.add(RoomData(roomId, lster))
-  
+
+  def removeListener(self, lster, roomId):
+    for lst in self.listenerList:
+      if lst.roomId == roomId:
+        if lst.player1 == lster:
+          lst.player1 = None
+        else:
+          lst.player2 = None
+        return
+
   async def notifyListeners(self, lster, roomId):
     for lst in self.listenerList:
       if lst.roomId == roomId:

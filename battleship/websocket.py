@@ -86,6 +86,7 @@ class WebsocketApplication:
         })
 
       if event['type'] == 'websocket.disconnect':
+        self.wsModel.removeListener(self, self.roomId)
         try:
           room = Room.objects.get(pk = self.roomId)
           # if self.playerIsHost:
