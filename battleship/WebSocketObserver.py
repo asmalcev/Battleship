@@ -1,18 +1,15 @@
-# from django.contrib.sessions.models import Session
-# from battleshipServer.models import Room
-
 class RoomData:
   def __init__(self, roomId, playerID):
     self.roomId = roomId
     self.player1 = playerID
     self.player2 = None
 
-class WebSocketModel(object):
+class WebSocketObserver(object):
   listenerList = set()
 
   def __new__(cls):
     if not hasattr(cls, 'instance'):
-      cls.instance = super(WebSocketModel, cls).__new__(cls)
+      cls.instance = super(WebSocketObserver, cls).__new__(cls)
     return cls.instance
 
   def appendListener(self, lster, roomId):

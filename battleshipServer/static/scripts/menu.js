@@ -14,7 +14,7 @@ document.querySelectorAll('.tablinks').forEach(tab => tab.addEventListener('clic
 
 document.querySelector('[data-openDefault]').click()
 
-const errMSG = document.querySelector('#errMSG')
+const errMSG = document.querySelector('#err-msg')
 document.querySelector('#search-field').addEventListener('keyup', event => {
   const searchField = event.target
   if (searchField.value.search(/[^\d]/) != -1) {

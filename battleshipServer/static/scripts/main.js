@@ -66,7 +66,6 @@ socket.onopen = event => {
 
 socket.onmessage = event => {
   const response = JSON.parse(event.data)
-  console.log(response)
   /*
 
       MODEL CHANGE MSG RESPONSE

@@ -108,15 +108,13 @@ export class Game {
     this.playerField.addEventListener('mouseout', clearField)
     this.renderShipMenu()
 
-    this.cells.forEach(cell => {
-      cell.addEventListener('click', this.handleShipPlacement)
-    })
+    this.playerField.addEventListener('click', this.handleShipPlacement)
 
     callback()
   }
 
   handleShipPlacement = event => {
-    if (this.choosenShip !== null && this.possibleToPlaceShip) {
+    if (this.choosenShip !== null && this.possibleToPlaceShip && event.target.classList.contains('cell')) {
       const target = event.target
   
       if (this.shipRotation) {
@@ -257,7 +255,6 @@ export class Game {
       getRect(+cell.dataset.x - 1, +cell.dataset.y - 1, 3, 3).forEach(coords => {
         const i = coords.x + coords.y * GameParams.fieldSize.width
         document.querySelectorAll('.field.enemy .cell')[i].classList.replace('empty', 'blocked')
-        document.querySelectorAll('.field.enemy .cell')[i].removeEventListener('click', this.clickCellListener)
       })
     })
   }
@@ -296,20 +293,18 @@ export class Game {
   }
 
   clickCellListener = event => {
-    this.makeStep(event.target.dataset)
+    if (
+      event.target.classList.contains('cell')
+      && event.target.classList.contains('empty')
+    ) this.makeStep(event.target.dataset)
   }
 
   prepareEnemyField = () => {
-    document.querySelectorAll('.field.enemy .cell').forEach(cell => {
-      if (cell.classList.contains('empty')) {
-        cell.addEventListener('click', this.clickCellListener)
-      }
-    })
+    this.enemyField.addEventListener('click', this.clickCellListener)
   }
 
   changeEnemyCellClass = (x, y, classCode) => {
     const cell = document.querySelectorAll('.field.enemy .cell')[x + y * GameParams.fieldSize.width]
-    cell.removeEventListener('click', this.clickCellListener)
     cell.className = `cell ${GameParams.codeClass[classCode]}`
   }
 

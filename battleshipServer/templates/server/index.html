@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BattleShip - Lobby</title>
   {% load static %}
+  <link rel="stylesheet" href="{% static "stylesheets/light_theme.css" %}">
   <link rel="stylesheet" href="{% static "stylesheets/main.css" %}">
   <link rel="stylesheet" href="{% static "stylesheets/menu.css" %}">
   <link rel="shortcut icon" href="{% static "images/BattleShip-icon.png" %}" type="image/x-icon">
@@ -25,7 +26,7 @@
           <div class="input-container">
             <input id="search-field" type="text" minlength="6" maxlength="6" name="search" placeholder="ID" class="input-field" autocomplete="off" required>
             <label for="search-field" class="textholder">ID</label>
-            <p id="errMSG">ID should contain only numbers</p>
+            <p id="err-msg">ID should contain only numbers</p>
           </div>
           <input type="submit" value="Search" class="styled-btn">
         </form>
@@ -43,6 +44,9 @@
       <p></p>
       <input type="button" class="styled-btn" value="Ok">
     </div>
+  </div>
+  <div id="app-info">
+    v(1.0.0)
   </div>
   <script src="{% static "scripts/menu.js" %}"></script>
 </body>

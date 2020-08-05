@@ -3,7 +3,7 @@ from battleshipServer.models import Room
 
 from battleship.gameLogic import GameLogic
 
-from battleship.websocketModel import WebSocketModel
+from battleship.WebSocketObserver import WebSocketObserver
 
 import json
 
@@ -28,7 +28,7 @@ class WebsocketApplication:
 
     self.gm = GameLogic()
 
-    self.wsModel = WebSocketModel()
+    self.wsModel = WebSocketObserver()
     self.wsModel.appendListener(self, self.roomId)
 
   async def notify(self):

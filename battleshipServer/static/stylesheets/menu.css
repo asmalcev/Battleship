@@ -9,8 +9,8 @@
   padding: 14px 16px;
   transition: .3s;
   margin-top: 0;
-  color: #091540;
-  background-color: #fff;
+  color: var(--secondary-color);
+  background-color: var(--main-color);
   position: relative;
   font-size: 20px;
   border: none;
@@ -23,7 +23,7 @@
   left: 10%;
   width: 0;
   height: 3px;
-  background-color: #091540;
+  background-color: var(--secondary-color);
   transition: 0.3s;
 }
 .tab button:hover::before {
@@ -57,14 +57,14 @@
 }
 .input-field {
   padding: 12px;
-  border: 1px #091540 solid;
+  border: 1px var(--secondary-color) solid;
   outline: none;
   border-radius: 5px;
   font-size: 18px;
   width: 100%;
 }
 .input-field::-webkit-input-placeholder {
-  color: #ffffff;
+  color: var(--main-color);
 }
 .input-container .textholder {
   position: absolute;
@@ -78,12 +78,20 @@
   left: 7px;
   top: -9px;
   font-size: 14px;
-  background-color: #fff;
+  background-color: var(--main-color);
 }
 form input[type=submit] {
   margin-top: 20px;
 }
-#errMSG {
+#err-msg {
   display: none;
   margin: 6px;
+}
+#app-info {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  color: #666;
+  font-size: 12px;
+  user-select: none;
 }

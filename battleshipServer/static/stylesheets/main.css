@@ -2,13 +2,12 @@
   font-family: 'Ubuntu';
   src: url('../fonts/Ubuntu.ttf');
 }
-
 * {
   margin: 0;
   padding: 0;
   font-family: 'Ubuntu';
   box-sizing: border-box;
-  color: #091540;
+  color: var(--secondary-color);
 }
 .header {
   padding: 20px;
@@ -24,8 +23,8 @@
 .styled-btn {
   margin-top: 12px;
   padding: 12px;
-  background-color: #3D518C;
-  color: #fff;
+  background-color: var(--btn-color);
+  color: var(--main-color);
   font-weight: 700;
   border: none;
   font-size: 16px;
@@ -46,7 +45,7 @@
 }
 .modal {
   padding: 50px;
-  background-color: #fff;
+  background-color: var(--main-color);
   border-radius: 20px;
   text-align: center;
 }
@@ -65,7 +64,7 @@
   z-index: 999;
 }
 .log {
-  background-color: #fff;
+  background-color: var(--main-color);
   box-shadow: 0 0 10px #0004;
   padding: 12px;
   border-radius: 12px;
@@ -98,7 +97,7 @@
   position: absolute;
   width: 16px;
   height: 2px;
-  background-color: #333333;
+  background-color: var(--secondary-color);
   top: 8px;
   left: 1px;
   transform: rotate(45deg);
