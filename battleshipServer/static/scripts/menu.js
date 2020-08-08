@@ -26,30 +26,39 @@ document.querySelector('#search-field').addEventListener('keyup', event => {
   }
 })
 
+const findRoom = roomID => {
+  let request = new Request(
+    'search',
+    { headers: {'X-CSRFToken': csrftoken} }
+  )
+
+  fetch(request, {
+    method: 'PUT',
+    mode: 'same-origin',
+    body: roomID
+  }).then(response => {
+    if (response.status === 404) {
+      const modalMSG = document.querySelector('.modal p')
+      modalMSG.innerHTML = `Room with ID [${roomID}] was NOT FOUND`
+      toggleModalWindow()
+    } else if (response.redirected) {
+      document.location.replace(response.url)
+    }
+  })
+}
+
 document.querySelector('#search-form').addEventListener('submit', event => {
   event.preventDefault()
   const value = event.path[0][0].value
   if (value.trim().length != 0 && value.search(/[^\d]/) == -1) {
-    let request = new Request(
-      'search',
-      { headers: {'X-CSRFToken': csrftoken} }
-    )
-
-    fetch(request, {
-      method: 'PUT',
-      mode: 'same-origin',
-      body: value
-    }).then(response => {
-      if (response.status === 404) {
-        const modalMSG = document.querySelector('.modal p')
-        modalMSG.innerHTML = `Room with ID [${value}] was NOT FOUND`
-        toggleModalWindow()
-      } else if (response.redirected) {
-        document.location.replace(response.url)
-      }
-    })
+    findRoom(value)
   }
 })
+
+const connectRoom = (element, roomID) => {
+  element.parentNode.remove()
+  findRoom(roomID)
+}
 
 document.querySelector('#create-form').addEventListener('submit', async event => {
   event.preventDefault()
@@ -60,7 +69,8 @@ document.querySelector('#create-form').addEventListener('submit', async event =>
 
   fetch(request, {
     method: 'POST',
-    mode: 'same-origin'
+    mode: 'same-origin',
+    body: new FormData(event.target)
   }).then(response => {
     document.location.replace(response.url)
   })

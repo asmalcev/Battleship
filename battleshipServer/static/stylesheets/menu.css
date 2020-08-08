@@ -95,3 +95,75 @@ form input[type=submit] {
   font-size: 12px;
   user-select: none;
 }
+.checkbox-label {
+  width: 100%;
+  display: block;
+  position: relative;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  padding-left: 30px;
+}
+.checkbox-label input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: #fff;
+  border-radius: 3px;
+  transition: 0.3s;
+  border: 1px var(--btn-color) solid;
+}
+.checkbox-label:hover input ~ .checkmark {
+  background-color: #eee;
+}
+.checkbox-label input:checked ~ .checkmark {
+  background-color: var(--btn-color);
+}
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+.checkbox-label input:checked ~ .checkmark:after {
+  display: block;
+}
+.checkbox-label .checkmark:after {
+  left: 6px;
+  top: 2px;
+  width: 4px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.opened-room-list {
+  margin-top: 24px;
+}
+.opened-room-list .room {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  transition: 0.3s;
+}
+.opened-room-list .room:hover {
+  background-color: #0001;
+}
+.opened-room-list .room span {
+  margin-top: 10px;
+}
+.opened-room-list .room .styled-btn {
+  margin: 0;
+}

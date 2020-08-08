@@ -8,6 +8,7 @@ class Room(models.Model):
   guestField = models.CharField(max_length=100)
   hostStatus = models.SmallIntegerField(null=True, blank=True)
   guestStatus = models.SmallIntegerField(null=True, blank=True)
+  isOpen = models.BooleanField(default=False)
 
   def __str__(self):
     return str(self.roomID)

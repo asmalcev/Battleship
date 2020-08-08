@@ -30,10 +30,25 @@
           </div>
           <input type="submit" value="Search" class="styled-btn">
         </form>
+        <div class="opened-room-list">
+          <h3>Opened rooms</h3>
+          {% for room in openedrooms %}
+            <div class="room">
+              <span>{{ room.roomID }}</span>
+              <button class="styled-btn" onclick="connectRoom(this, {{ room.roomID }})">Connect</button>
+            </div>
+          {% empty %}
+            <div>There are not any opened room</div>
+          {% endfor %}
+        </div>
       </div>
       
       <div id="Create" class="tabcontent">
         <form id="create-form">
+          <label for="room-state" class="checkbox-label">Create opened room
+            <input type="checkbox" id="room-state" name="openedroom" value="True">
+            <span class="checkmark"></span>
+          </label>
           <input type="submit" value="Create" class="styled-btn">
         </form>
       </div>

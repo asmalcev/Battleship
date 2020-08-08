@@ -13,6 +13,10 @@ def index(request):
 
   context = {
     'playerID': playerID,
+    'openedrooms': filter(
+      lambda r: r.isOpen and r.guestID == None,
+      Room.objects.all()
+    )
   }
   if roomID == None:
     request.session.modified = True
@@ -36,8 +40,16 @@ def search(request):
     return HttpResponse(status=404)
 
 def create(request):
+  openedRoom = request.POST.get('openedroom')
+
   roomID = getRandomID()
-  room = Room(hostID=request.session['playerID'], roomID=roomID, hostField='0'*100, guestField='0'*100)
+  room = Room(
+    hostID     = request.session['playerID'], 
+    roomID     = roomID,
+    hostField  = '0' * 100,
+    guestField = '0' * 100,
+    isOpen     = openedRoom == 'True'
+  )
   room.save()
 
   request.session['roomID'] = roomID
@@ -49,11 +61,9 @@ def quit(request):
     room = Room.objects.get(pk = request.session['roomID'])
     if room.hostID == request.session['playerID']:
       room.delete()
-      print('Host deleted room ID: ', request.session['roomID'])
     else:
       room.guestID = None
       room.save()
-      print('Guest leaved room ID: ', request.session['roomID'])
     del request.session['roomID']
   except:
     try:
