@@ -261,3 +261,5 @@ class WebsocketApplication:
                 'type': 'websocket.send',
                 'text': json.dumps(response)
               })
+        elif msg['type'] == 'notifyOpponent':
+          await self.wsModel.notifyListeners(self, self.roomId)

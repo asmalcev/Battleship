@@ -8,11 +8,6 @@ const enableGame = () => {
   document.querySelector('#wall').style['display'] = 'none'
 }
 
-const changeOpponentState = status => {
-  document.querySelector('#opponent-state span')
-    .innerHTML = status
-}
-
 const changeStatus = (statusIconClass, statusQualityText) => {
   const status = document.querySelector('#connection .status')
   const quality = document.querySelector('#connection .quality')
@@ -91,7 +86,6 @@ socket.onmessage = event => {
       playerStatus = response.playerState
       loger.add('Your turn!')
     }
-    changeOpponentState(response.opponentState === '100' ? 'offline' : 'online')
     if (response.diff !== undefined) {
       response.diff.forEach(diffCell => {
         game.changeCellClass(+diffCell[1] % 10, Math.floor(+diffCell[1] / 10), +diffCell[0])
