@@ -149,6 +149,7 @@ class WebsocketApplication:
             'type': 'websocket.send',
             'text': json.dumps(response)
           })
+          await self.notify()
 
         ##################
         

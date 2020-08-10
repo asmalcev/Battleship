@@ -30,6 +30,11 @@ const closeModal = () => {
   document.querySelector('.modal-wrapper').style['display'] = 'none'
 }
 
+if (localStorage.theme === 'dark') {
+  const themeLink = document.querySelector('#current-theme')
+  themeLink.href = themeLink.href.replace('light', 'dark')
+}
+
 import {Game} from './Game.js'
 import {GameLog} from './GameLog.js'
 

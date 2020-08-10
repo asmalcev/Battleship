@@ -9,6 +9,10 @@
   box-sizing: border-box;
   color: var(--secondary-color);
 }
+body {
+  background-color: var(--main-color);
+  transition: .3s;
+}
 .header {
   padding: 20px;
   box-shadow: 0 0 10px #0002;
@@ -24,7 +28,7 @@
   margin-top: 12px;
   padding: 12px;
   background-color: var(--btn-color);
-  color: var(--main-color);
+  color: white;
   font-weight: 700;
   border: none;
   font-size: 16px;
@@ -64,7 +68,7 @@
   z-index: 999;
 }
 .log {
-  background-color: var(--main-color);
+  background-color: var(--logs-background-color);
   box-shadow: 0 0 10px #0004;
   padding: 12px;
   border-radius: 12px;
@@ -73,6 +77,9 @@
   width: 200px;
   transition: .3s;
   margin-bottom: 6px;
+}
+.log p {
+  color: #091540;
 }
 .log:nth-last-child() {
   margin-bottom: 0;
@@ -97,7 +104,7 @@
   position: absolute;
   width: 16px;
   height: 2px;
-  background-color: var(--secondary-color);
+  background-color: #091540;
   top: 8px;
   left: 1px;
   transform: rotate(45deg);

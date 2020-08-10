@@ -58,6 +58,8 @@
 .input-field {
   padding: 12px;
   border: 1px var(--secondary-color) solid;
+  background-color: var(--main-color);
+  color: var(--secondary-color);
   outline: none;
   border-radius: 5px;
   font-size: 18px;

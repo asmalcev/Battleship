@@ -18,6 +18,7 @@
   background-color: var(--btn-color);
   border-radius: 4px;
   margin: 20px 10px;
+  filter: brightness(var(--brightness));
 }
 .field.enemy {
   cursor: url('../images/aim.png') 15 15, pointer;
@@ -194,7 +195,7 @@
   margin: 6px 12px;
 }
 .wrapper:last-child .field-window {
-  filter: grayscale(1) blur(2px);
+  filter: blur(2px);
   cursor: not-allowed;
   user-select: none;
 }

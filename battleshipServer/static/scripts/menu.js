@@ -14,11 +14,38 @@ document.querySelectorAll('.tablinks').forEach(tab => tab.addEventListener('clic
 
 document.querySelector('[data-openDefault]').click()
 
+
+let currentTheme = localStorage.theme
+const themeLink = document.querySelector('#current-theme')
+if (
+  localStorage.theme === null
+  || localStorage.theme === undefined
+  || localStorage.theme === 'undefined'
+) {
+  currentTheme = 'light'
+} else if (currentTheme === 'dark') {
+  themeLink.href = themeLink.href.replace('light', 'dark')
+  document.querySelector('#theme-switcher').checked = true
+}
+document.querySelector('#theme-switcher').addEventListener('click', () => {
+  if (currentTheme === 'light') {
+    currentTheme = 'dark'
+    localStorage.theme = 'dark'
+    themeLink.href = themeLink.href.replace('light', 'dark')
+  } else {
+    currentTheme = 'light'
+    localStorage.theme = 'light'
+    themeLink.href = themeLink.href.replace('dark', 'light')
+  }
+})
+
 const errMSG = document.querySelector('#err-msg')
 document.querySelector('#search-field').addEventListener('keyup', event => {
   const searchField = event.target
   if (searchField.value.search(/[^\d]/) != -1) {
-    searchField.style['border-color'] = '#e53935'
+    searchField.style['border-color']
+      = getComputedStyle(document.documentElement)
+        .getPropertyValue('--secondary-color');
     errMSG.style['display'] = 'block'
   } else {
     searchField.style['border-color'] = '#091540'
