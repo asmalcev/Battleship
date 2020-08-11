@@ -43,6 +43,7 @@ class WebsocketApplication:
         'type': 'websocket.send',
         'text': json.dumps(response)
       })
+      return
 
     if self.playerIsHost:
       response['opponent']      = str(room.guestID)

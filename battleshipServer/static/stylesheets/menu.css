@@ -3,6 +3,7 @@
   width: 100%;
   display: flex;
   justify-content: space-around;
+  flex-wrap: wrap;
 }
 .tab button {
   cursor: pointer;
@@ -46,6 +47,7 @@
 .game-menu {
   margin: 30px auto;
   width: 400px;
+  max-width: 100%;
   border-radius: 5px;
   overflow: hidden;
 }

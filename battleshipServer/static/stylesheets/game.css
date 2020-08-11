@@ -81,6 +81,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
 }
 .field-window ul li {
   list-style: none;
@@ -236,3 +237,27 @@
 .field .cell:nth-child(71)::after { content: 'H'; }
 .field .cell:nth-child(81)::after { content: 'I'; }
 .field .cell:nth-child(91)::after { content: 'J'; } */
+
+@media (max-width: 700px) {
+  .wrapper, .field-window {
+    width: 100%;
+  }
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .field {
+    transform: scale(0.7);
+    margin: 0;
+    margin-top: -58px;
+  }
+  .field-window {
+    margin-top: 0;
+    box-shadow: none;
+  }
+  .fields-container {
+    padding: 0;
+  }
+}

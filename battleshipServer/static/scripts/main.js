@@ -1,10 +1,8 @@
 const disableGame = () => {
-  document.querySelector('.fields-container').style['filter'] = 'grayscale(1)'
   document.querySelector('#wall').style['display'] = 'block'
 }
 
 const enableGame = () => {
-  document.querySelector('.fields-container').style['filter'] = 'grayscale(0)'
   document.querySelector('#wall').style['display'] = 'none'
 }
 
