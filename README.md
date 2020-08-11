@@ -1,16 +1,5 @@
-<style>
-  .header {
-    text-align: center;
-    margin-top: 12px;
-  }
-  .header img {
-    width: 140px;
-    height: auto;
-  }
-</style>
-
-<div class="header">
-  <img src="battleshipServer/static/images/BattleShip-icon.png"/>
+<div style="text-align: center; margin-top: 12px;">
+  <img src="battleshipServer/static/images/BattleShip-icon.png" style="width: 140px; height: auto;"/>
   <h1>Battleship</h1>
 </div>
 This repository contains the web game - Battleship.
