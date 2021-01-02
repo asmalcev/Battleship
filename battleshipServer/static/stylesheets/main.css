@@ -46,6 +46,7 @@ body {
   justify-content: center;
   align-items: center;
   display: none;
+  z-index: 1000;
 }
 .modal {
   padding: 50px;
