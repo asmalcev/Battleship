@@ -2,3 +2,5 @@ battleship-env
 __pycache__
 *.sqlite3
 *.pyc
+node_modules
+yarn.lock

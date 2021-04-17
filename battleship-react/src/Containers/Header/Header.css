@@ -1,0 +1,9 @@
+header {
+  width: 100%;
+  padding: 24px;
+  /* box-shadow: 0 0 10px var(--shadow-color); */
+}
+
+header h1 {
+  text-align: center;
+}
