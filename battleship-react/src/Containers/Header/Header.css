@@ -1,9 +1,10 @@
 header {
   width: 100%;
-  padding: 24px;
+  padding: 1.5rem;
   /* box-shadow: 0 0 10px var(--shadow-color); */
 }
 
 header h1 {
   text-align: center;
+  margin: 1rem 0;
 }

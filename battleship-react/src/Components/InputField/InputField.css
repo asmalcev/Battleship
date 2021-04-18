@@ -1,0 +1,53 @@
+.field-container {
+  position: relative;
+}
+
+.field-container:not(:first-child) {
+  margin-top: 0.6rem;
+}
+
+.field-container input {
+  outline: none;
+  display: block;
+
+  width: 100%;
+  padding: 0.8rem;
+  background-color: var(--main-color);
+
+  border: 1px var(--secondary-color) solid;
+  border-radius: 3px;
+
+  font-size: 1rem;
+  color: var(--secondary-color);
+}
+
+.field-container input::-webkit-input-placeholder {
+  color: var(--main-color);
+}
+
+.field-container .placeholder {
+  user-select: none;
+
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+
+  font-size: 1rem;
+
+  transition: 0.3s;
+  transform: translateY(-50%);
+}
+
+.field-container input:not(:placeholder-shown) ~ .placeholder {
+  left: 0.5rem;
+  top: 0;
+
+  background-color: var(--main-color);
+
+  font-size: 0.85rem;
+}
+
+.field-container .err-msg {
+  margin: 1rem;
+  color: var(--error-color);
+}

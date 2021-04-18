@@ -2,8 +2,7 @@
   overflow: hidden;
   display: flex;
 
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
+  border-radius: 3px;
 }
 
 .tabs-container .tabs .tablinks {
@@ -45,9 +44,10 @@
 
 .tabs-container .tab {
   padding: 1rem;
+}
 
-  border: 2px solid var(--secondary-color);
-  border-top: none;
-  border-bottom-left-radius: 3px;
-  border-bottom-right-radius: 3px;
+@media (max-width: 480px) {
+  .tabs-container .tabs {
+    border-radius: 0px;
+  }
 }

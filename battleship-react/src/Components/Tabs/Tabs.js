@@ -13,7 +13,7 @@ const Tabs = ({children}) => {
     <div className="tabs">
       {
         children.map((tab, i) =>
-          <button className = {`tablinks${ i == activeTab ? " active" : ""}`}
+          <button className = {`tablinks${ i === activeTab ? " active" : ""}`}
                   onClick   = { changeTab.bind(null, i) }
                   key       = { i }
           >{ tab.tabname }</button>

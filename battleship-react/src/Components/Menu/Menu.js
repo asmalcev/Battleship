@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import Tabs         from '../Tabs';
+// import { useState } from 'react';
+import SearchField from '../SearchField';
+import Tabs        from '../Tabs';
 
 import './Menu.css';
 
@@ -10,7 +11,10 @@ const Menu = () => {
       {[
         {
           tabname    : 'Search',
-          tabcontent : <div>Search</div>
+          tabcontent : <>
+            <SearchField />
+            <p><br/>other info...</p>
+          </>
         },
         {
           tabname    : 'Create',

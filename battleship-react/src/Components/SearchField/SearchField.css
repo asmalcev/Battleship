@@ -1,0 +1,27 @@
+.search-container {
+  position: relative;
+  padding-bottom: 0.7rem;
+}
+
+.search-container .progress-bar,
+.search-container.valid::before {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+
+  width: 100%;
+  height: 5px;
+
+  border-radius: 3px;
+}
+
+.search-container.valid::before {
+  content: '';
+  background-color: #E0E0E0;
+}
+
+.search-container .progress-bar {
+  background-color: #43A047;
+  box-shadow: 0 0 10px #43A047;
+  transition: 0.3s;
+}
