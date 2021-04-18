@@ -4,7 +4,7 @@ import InputField   from '../InputField';
 import './SearchField.css';
 
 const SearchField = ({
-  
+  requestChangeCallback
 }) => {
   const idLength = 6;
 
@@ -18,6 +18,7 @@ const SearchField = ({
     } else {
       setProgress(value.length);
     }
+    requestChangeCallback(value, valid);
   }
 
   return <div className={`search-container${progress !== -1 ? ' valid' : ''}`}>
@@ -28,8 +29,9 @@ const SearchField = ({
       autoComplete = "off"
       minLength    = { idLength }
       maxLength    = { idLength }
-      validator    = { searchValidator }
       errMsg       = "Field should contain only numbers"
+
+      validator      = { searchValidator }
       changeCallback = { changeCallback }
       required/>
     {

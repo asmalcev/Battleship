@@ -1,6 +1,5 @@
-// import { useState } from 'react';
-import SearchField from '../SearchField';
-import Tabs        from '../Tabs';
+import Tabs       from '../Tabs';
+import SearchForm from '../SearchForm';
 
 import './Menu.css';
 
@@ -12,8 +11,7 @@ const Menu = () => {
         {
           tabname    : 'Search',
           tabcontent : <>
-            <SearchField />
-            <p><br/>other info...</p>
+            <SearchForm />
           </>
         },
         {

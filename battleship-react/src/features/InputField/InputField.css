@@ -38,6 +38,7 @@
   transform: translateY(-50%);
 }
 
+.field-container input:focus ~ .placeholder,
 .field-container input:not(:placeholder-shown) ~ .placeholder {
   left: 0.5rem;
   top: 0;

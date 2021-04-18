@@ -1,6 +1,9 @@
 .search-container {
   position: relative;
-  padding-bottom: 0.7rem;
+}
+
+.search-container.valid {
+  padding-bottom: 5px;
 }
 
 .search-container .progress-bar,
@@ -10,18 +13,33 @@
   bottom: 0;
 
   width: 100%;
-  height: 5px;
+  height: 10px;
 
-  border-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+
+  animation: appear 0.3s ease-in;
 }
 
 .search-container.valid::before {
   content: '';
+
+  z-index: -2;
+
   background-color: #E0E0E0;
 }
 
 .search-container .progress-bar {
+  z-index: -1;
+
   background-color: #43A047;
   box-shadow: 0 0 10px #43A047;
+
   transition: 0.3s;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
 }

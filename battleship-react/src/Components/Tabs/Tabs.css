@@ -20,6 +20,7 @@
   transition: opacity 0.3s;
 }
 
+.tabs-container .tabs .tablinks:focus,
 .tabs-container .tabs .tablinks:hover {
   opacity: 0.8;
 }
