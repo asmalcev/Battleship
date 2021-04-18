@@ -4,11 +4,12 @@ import InputField   from '../InputField';
 import './SearchField.css';
 
 const SearchField = ({
-  requestChangeCallback
+  requestChangeCallback,
+  value
 }) => {
   const idLength = 6;
 
-  const [ progress, setProgress ] = useState(0);
+  const [ progress, setProgress ] = useState(value.length);
 
   const searchValidator = value => value.search(/[^\d]/) === - 1;
 
@@ -25,6 +26,7 @@ const SearchField = ({
     <InputField
       id           = "room-id"
       name         = "search"
+      value        = { value }
       placeholder  = "Room ID"
       autoComplete = "off"
       minLength    = { idLength }

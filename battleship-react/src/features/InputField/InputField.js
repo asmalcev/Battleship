@@ -4,18 +4,17 @@ import './InputField.css';
 
 const InputField = ({
   id,
-  placeholder,
   errMsg,
   validator,
+  value = '',
+  placeholder,
   changeCallback,
   ...other
 }) => {
-  const [ value  , setValue ] = useState('');
   const [ isValid, setValid ] = useState(true);
 
   const changeHandler = e => {
     const newValue = e.target.value;
-    setValue(newValue);
 
     let localIsValid = true;
     if (validator) {

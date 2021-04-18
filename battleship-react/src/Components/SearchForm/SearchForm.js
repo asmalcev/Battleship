@@ -24,7 +24,8 @@ const SearchForm = () => {
   }
 
   return <form onSubmit={ submitHandler }>
-    <SearchField requestChangeCallback={ updateRequest }/>
+    <SearchField requestChangeCallback={ updateRequest }
+                 value={ request }/>
     <Button type="submit">Search room</Button>
   </form>;
 }
