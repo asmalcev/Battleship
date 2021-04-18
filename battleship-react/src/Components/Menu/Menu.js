@@ -1,5 +1,6 @@
-import Tabs       from '../Tabs';
-import SearchForm from '../SearchForm';
+import Tabs        from '../Tabs';
+import SearchForm  from '../SearchForm';
+import OpenedRooms from '../OpenedRooms'; 
 
 import './Menu.css';
 
@@ -12,6 +13,7 @@ const Menu = () => {
           tabname    : 'Search',
           tabcontent : <>
             <SearchForm />
+            <OpenedRooms />
           </>
         },
         {

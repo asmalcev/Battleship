@@ -1,0 +1,17 @@
+.opened-room {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 1rem;
+
+  transition: background-color 0.3s;
+}
+
+.opened-room:hover {
+  background-color: #0001;
+}
+
+.opened-room p {
+  font-size: 1.2rem;
+}
