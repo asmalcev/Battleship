@@ -1,0 +1,66 @@
+.switcher-container {
+  cursor: pointer;
+
+  position: relative;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  max-width: 320px;
+  margin: 1rem auto;
+}
+
+.switcher-container input {
+  position: absolute;
+  opacity: 0;
+}
+
+.switcher-container .label-text {
+  user-select: none;
+
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.switcher-container label {
+  cursor: pointer;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 3rem;
+  height: 1.5rem;
+  border: 1px var(--secondary-color) solid;
+
+  border-radius: 3px;
+
+  transform: translate(-50%, -50%);
+  transition: background-color 0.3s;
+}
+
+.switcher-container label::after {
+  content: '';
+
+  position: absolute;
+  top: calc(0.25rem - 1px);
+  left: calc(0.25rem - 1px);
+
+  width: 1rem;
+  height: 1rem;
+  background-color: var(--secondary-color);
+
+  border-radius: 3px;
+  transition: 0.3s;
+}
+
+.switcher-container input:checked ~ label {
+  background-color: var(--secondary-color);
+}
+
+.switcher-container input:checked ~ label::after {
+  left: calc(1.75rem - 1px);
+
+  background-color: var(--main-color);
+}

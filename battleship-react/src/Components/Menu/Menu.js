@@ -1,7 +1,8 @@
 import Tabs        from '../Tabs';
+import Settings    from '../Settings';
 import SearchForm  from '../SearchForm';
-import OpenedRooms from '../OpenedRooms'; 
 import CreateForm  from '../CreateForm';
+import OpenedRooms from '../OpenedRooms'; 
 
 import './Menu.css';
 
@@ -25,7 +26,9 @@ const Menu = () => {
         },
         {
           tabname    : 'Settings',
-          tabcontent : <div>Settings</div>
+          tabcontent : <>
+            <Settings />
+          </>
         },
       ]}
     </Tabs>

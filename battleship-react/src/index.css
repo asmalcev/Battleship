@@ -27,6 +27,10 @@ html {
   font-size: 16px;
 }
 
+body {
+  background-color: var(--main-color);
+}
+
 .headline {
   margin-top: 2rem;
   margin-bottom: 0.5rem;

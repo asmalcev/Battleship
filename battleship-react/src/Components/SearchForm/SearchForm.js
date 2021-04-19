@@ -3,8 +3,6 @@ import { useState } from 'react';
 import Button      from '../../features/Button';
 import SearchField from '../../features/SearchField';
 
-import './SearchForm.css';
-
 const SearchForm = () => {
   const [ request,      setRequest ] = useState('');
   const [ validRequest, setValid   ] = useState(true);
