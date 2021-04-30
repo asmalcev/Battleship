@@ -9,7 +9,8 @@ export const theme = {
     'logs-background-color': '#fff',
     'error-color':           '#e53935',
     'shadow-color':          '#0004',
-    'brightness':            1
+    'brightness':            1,
+    'field-color':           '#3D518C',
   },
   dark: {
     'main-color':            '#091540',
@@ -17,6 +18,7 @@ export const theme = {
     'logs-background-color': '#fff',
     'error-color':           '#e53935',
     'shadow-color':          '#0004',
-    'brightness':            1
+    'brightness':            1,
+    'field-color':           '#3D518C',
   }
 };

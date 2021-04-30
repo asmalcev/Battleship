@@ -1,18 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
 
-:root {
-  --main-color: #fff;
-  --secondary-color: #091540;
-  
-  --logs-background-color: #fff;
-
-  --error-color: #e53935;
-
-  --shadow-color: #0004;
-
-  --brightness: 1;
-}
-
 * {
   box-sizing: border-box;
 

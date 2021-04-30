@@ -1,18 +1,14 @@
-import { useState } from 'react';
+import { useContext } from 'react';
 
 import Switcher from '../../features/Switcher';
-
-import { theme as themeConfig } from '../../config';
+import { UserDataContext } from '../../Contexts/UserDataContext';
 
 const ThemeSwitcher = () => {
-  const [ theme, setTheme ] = useState('light');
+  const userContext = useContext(UserDataContext);
+  const theme       = userContext.theme;
 
   const changeHandler = theme => {
-    setTheme(theme ? 'dark' : 'light');
-  }
-
-  for (let prop in themeConfig[theme]) {
-    document.documentElement.style.setProperty(`--${prop}`, themeConfig[theme][prop]);
+    userContext.updateTheme(theme ? 'dark' : 'light');
   }
 
   return <>

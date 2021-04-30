@@ -1,13 +1,24 @@
-import Header from '../Header';
-import Menu   from '../../Components/Menu';
+import { useState } from 'react';
 
-const App = () =>
-  <div className="App">
+import Header from '../Header';
+import Menu   from '../Menu';
+import Game   from '../Game';
+
+const App = () => {
+  const [ isInGame, setIsInGame ] = useState(true);
+
+  return <>
     <Header>
       <h1>BattleShip</h1>
-      <h3>USER_ID: 283431</h3>
     </Header>
-    <Menu />
-  </div>
+    {
+      isInGame
+      ?
+        <Game />
+      :
+        <Menu />
+    }
+  </>;
+}
 
 export default App;

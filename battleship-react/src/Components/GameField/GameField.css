@@ -1,0 +1,75 @@
+.game-field-container h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.game-field {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  grid-gap: 0.2rem;
+
+  width: 24rem;
+  height: 24rem;
+
+  padding: 0.5rem;
+  background-color: var(--field-color);
+
+  border-radius: 3px;
+}
+
+.game-field-cell {
+  position: relative;
+  cursor: pointer;
+
+  background-color: var(--shadow-color);
+  border-radius: 3px;
+
+  text-align: center;
+
+  transition: 0.3s;
+}
+
+.game-field-cell.empty {
+  background-color: #ABD2FA;
+}
+.game-field-cell.empty:hover {
+  background-color: #89A9CF;
+}
+.game-field-cell.ship {
+  background-color: #F2F2DB;
+}
+.game-field-cell.miss {
+  background-color: #fff;
+}
+.game-field-cell.destroyed-ship {
+  background-color: #263238;
+}
+.game-field-cell.hit {
+  background-color: #e53935;
+}
+.game-field-cell.blocked {
+  background-color: #ABD2FA;
+}
+.game-field-cell.miss::before,
+.game-field-cell.miss::after,
+.game-field-cell.hit::before,
+.game-field-cell.hit::after,
+.game-field-cell.blocked::before,
+.game-field-cell.blocked::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  content: '';
+
+  width: 2px;
+  height: 80%;
+  background-color: #333;
+
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.game-field-cell.miss::after, .game-field-cell.hit::after, .game-field-cell.blocked::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}

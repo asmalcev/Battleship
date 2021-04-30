@@ -1,8 +1,8 @@
-import Tabs        from '../Tabs';
-import Settings    from '../Settings';
-import SearchForm  from '../SearchForm';
-import CreateForm  from '../CreateForm';
-import OpenedRooms from '../OpenedRooms'; 
+import Tabs        from '../../Components/Tabs';
+import Settings    from '../../Components/Settings';
+import SearchForm  from '../../Components/SearchForm';
+import CreateForm  from '../../Components/CreateForm';
+import OpenedRooms from '../../Components/OpenedRooms'; 
 
 import './Menu.css';
 
