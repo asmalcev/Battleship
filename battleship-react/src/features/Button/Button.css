@@ -18,3 +18,12 @@
 .styled-btn:hover {
   opacity: 0.8;
 }
+
+.btn-container .styled-btn {
+  width: 100%;
+  margin: 0;
+}
+
+.btn-container .styled-btn:not(:first-child) {
+  margin-top: 0.5rem;
+}
