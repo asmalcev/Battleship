@@ -14,7 +14,7 @@ const GameField = ({
     onOverCell({
       html: e.target,
       index: index
-    });
+    }, e);
   }
 
   const fieldMouseoutHandler = () => {
@@ -36,7 +36,7 @@ const GameField = ({
     onClick && onClick({
       html: e.target,
       index: e.target.dataset.index
-    });
+    }, e);
   }
 
   return <div className="game-field-container">

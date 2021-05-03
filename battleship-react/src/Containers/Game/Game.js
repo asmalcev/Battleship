@@ -12,6 +12,19 @@ const initialAvaibleShips = [
   { id: 3, name: 'Frigates',          count: 4 }
 ];
 
+const initialPlayerField = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+];
+
 const GameFieldParams = {
   width: 10,
   height: 10
@@ -30,32 +43,50 @@ const getRect = (x, y, w, h) => {
   return arr;
 }
 
+const copyArrOfObjs = arr => arr.map(obj => Object.assign({}, obj));
+
+const getRandomNumber = (min, max) => {
+  return Math.floor(min + Math.random() * (max + 1 - min));
+}
+
 const Game = () => {
 
-  const [ playerField, setPlayerField ] = useState([
-    0, 0, 1, 1, 2, 2, 3, 3, 4, 4,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-  ]);
+  const [ playerField, setPlayerField ] = useState(initialPlayerField);
 
-  const [ avaibleToPlaceShips, setAvaibleToPlaceShips ] = useState(initialAvaibleShips);
+  const [ avaibleToPlaceShips, setAvaibleToPlaceShips ] = useState(copyArrOfObjs(initialAvaibleShips));
   const [ shipToPlace,         setShipToPlace         ] = useState(null);
   const [ playerFieldMask,     setPlayerFieldMask     ] = useState(null);
 
-  const isVerticalOrigin      = useRef(true);
-  const isPossibleToPlaceShip = useRef(true);
+  const isHorizontalOrigin    = useRef(true);
+  const isPossibleToPlaceShip = useRef(false);
+
+  const checkNearestShips = (
+    x, y,
+    ship = shipToPlace,
+    field = playerField
+  ) => {
+    isPossibleToPlaceShip.current = true;
+    if (isHorizontalOrigin.current) {
+      const shipCellCount = getRect(x - 1, y - 1, ship.length + 2, 3)
+                           .filter(index => field[index] === 1)
+                           .length;
+      if (shipCellCount > 0) {
+        isPossibleToPlaceShip.current = false;
+      }
+    } else {
+      const shipCellCount = getRect(x - 1, y - 1, 3, ship.length + 2)
+                           .filter(index => field[index] === 1)
+                           .length;
+      if (shipCellCount > 0) {
+        isPossibleToPlaceShip.current = false;
+      }
+    }
+  }
 
   const shipChooseHandler = shipId => {
     if (shipToPlace && shipId === shipToPlace.id) {
       setShipToPlace(null);
-      } else {
+    } else {
       setShipToPlace({
         id:     shipId,
         length: 4 - shipId
@@ -64,7 +95,82 @@ const Game = () => {
   }
 
   const rotateOriginHandler = () => {
-    isVerticalOrigin.current = !isVerticalOrigin.current;
+    isHorizontalOrigin.current = !isHorizontalOrigin.current;
+  }
+
+  const randomizeShipPlacement = () => {
+    if (avaibleToPlaceShips.length === 0) {
+      return;
+    }
+    let ships = copyArrOfObjs(avaibleToPlaceShips);
+    let field = playerField.slice();
+
+    let choosenShip, index, x, y;
+
+    const checkBorders = () => {
+      if (isHorizontalOrigin.current) {
+        if (
+          GameFieldParams.width - x < choosenShip.length
+        ) {
+          isPossibleToPlaceShip.current = false;
+        }
+      } else {
+        if (
+          GameFieldParams.height - y < choosenShip.length
+        ) {
+          isPossibleToPlaceShip.current = false;
+        }
+      }
+    }
+
+    while (ships.length !== 0) {
+      choosenShip = {
+        id:     ships[0].id,
+        length: 4 - ships[0].id
+      };
+      index = getRandomNumber(0, field.length - 1);
+      x = index % GameFieldParams.width;
+      y = Math.floor(index / GameFieldParams.height);
+      checkNearestShips(x, y, choosenShip, field);
+      checkBorders();
+      if (isPossibleToPlaceShip.current) {
+
+        field = applyMask(field, { start: index }, choosenShip);
+        ships = ships.map(ship => {
+          if (ship.id === choosenShip.id) {
+            ship.count--;
+          }
+          return ship;
+        }).filter(ship => ship.count > 0);
+
+      } else {
+        rotateOriginHandler();
+        checkNearestShips(x, y, choosenShip, field);
+        checkBorders();
+        if (isPossibleToPlaceShip.current) {
+
+          field = applyMask(field, { start: index }, choosenShip);
+          ships = ships.map(ship => {
+            if (ship.id === choosenShip.id) {
+              ship.count--;
+            }
+            return ship;
+          }).filter(ship => ship.count > 0);
+        }
+      }
+    }
+
+    setPlayerField(field);
+    setAvaibleToPlaceShips(ships);
+    setShipToPlace(null);
+    setPlayerFieldMask(null);
+  }
+
+  const clearField = () => {
+    setPlayerField(initialPlayerField);
+    setAvaibleToPlaceShips(copyArrOfObjs(initialAvaibleShips));
+    setShipToPlace(null);
+    setPlayerFieldMask(null);
   }
 
   const shipsList = avaibleToPlaceShips.map(ship =>
@@ -81,8 +187,9 @@ const Game = () => {
       { shipsList }
     </ul>
     <div className="btn-container">
-      <Button onClick={ rotateOriginHandler }>Rotate ship</Button>
-      <Button>Randomize</Button>
+      <Button onClick = { rotateOriginHandler    }>Rotate ship</Button>
+      <Button onClick = { randomizeShipPlacement }>Randomize</Button>
+      <Button onClick = { clearField             }>Clear field</Button>
     </div>
   </div>;
 
@@ -90,37 +197,39 @@ const Game = () => {
     <h3>Battle stats</h3>
   </div>;
 
-  const playerFieldClickHandler = target => {
-    console.log(target);
-  }
+  const playerFieldClickHandler = (target, e) => {
+    e.preventDefault();
 
-  const checkNearestShips = index => {
-    const x = index % GameFieldParams.width;
-    const y = Math.floor(index / GameFieldParams.height);
-
-    isPossibleToPlaceShip.current = true;
-    if (isVerticalOrigin.current) {
-      getRect(x - 1, y - 1, 3, shipToPlace.length + 2).forEach(index => {
-        if (playerField[index] === 1) {
-          isPossibleToPlaceShip.current = false;
-        }
-      })
-    } else {
-      getRect(x - 1, y - 1, shipToPlace.length + 2, 3).forEach(index => {
-        if (playerField[index] === 1) {
-          isPossibleToPlaceShip.current = false;
-        }
-      })
+    if (!isPossibleToPlaceShip.current) {
+      return;
     }
+
+    setPlayerField(applyMask(playerField.slice(), playerFieldMask));
+
+    let isShipCountEqZero = false;
+    setAvaibleToPlaceShips(avaibleToPlaceShips.map(ship => {
+      if (ship.id === shipToPlace.id) {
+        ship.count--;
+        if (ship.count === 0) {
+          isShipCountEqZero = true;
+        }
+      }
+      return ship;
+    }).filter(ship => ship.count > 0));
+
+    if (!e.shiftKey || isShipCountEqZero) {
+      setShipToPlace(null);
+    }
+    isPossibleToPlaceShip.current = false;
   }
 
-  const applyMask = (field, mask) => {
-    if (!mask) return field;
+  const applyMask = (field, mask, ship = shipToPlace) => {
+    if (!mask || !isPossibleToPlaceShip.current) return field;
   
     for (
       let i = mask.start, jlen = 0;
-      jlen < shipToPlace.length;
-      jlen++, i += isVerticalOrigin.current ? 1 : GameFieldParams.width
+      jlen < ship.length;
+      jlen++, i += isHorizontalOrigin.current ? 1 : GameFieldParams.width
     ) {
       field[i] = 1;
     }
@@ -129,8 +238,25 @@ const Game = () => {
   }
 
   const overCellHandler = target => {
+    const x = target.index % GameFieldParams.width;
+    const y = Math.floor(target.index / GameFieldParams.height);
+
+    checkNearestShips(x, y);
+    if (isHorizontalOrigin.current) {
+      if (
+        GameFieldParams.width - x < shipToPlace.length
+      ) {
+        isPossibleToPlaceShip.current = false;
+      }
+    } else {
+      if (
+        GameFieldParams.height - y < shipToPlace.length
+      ) {
+        isPossibleToPlaceShip.current = false;
+      }
+    }
     setPlayerFieldMask({
-      start:  target.index
+      start: target.index
     });
   }
 
@@ -151,7 +277,7 @@ const Game = () => {
                     playerField 
                }
                label      = "Player Field"
-               onClick    = { playerFieldClickHandler }
+               onClick    = { shipToPlace && playerFieldClickHandler }
                onOverCell = { shipToPlace && overCellHandler }
                onOutField = { shipToPlace && clearMask } />
     

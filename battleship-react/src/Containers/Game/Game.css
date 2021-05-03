@@ -7,6 +7,10 @@
   margin: 5% auto;
 }
 
+.game-container * {
+  user-select: none;
+}
+
 .game-container > div {
   margin: 0 1rem;
 }
