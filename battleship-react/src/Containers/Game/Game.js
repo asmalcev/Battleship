@@ -51,7 +51,8 @@ const getRandomNumber = (min, max) => {
 
 const Game = () => {
 
-  const [ playerField, setPlayerField ] = useState(initialPlayerField);
+  const [ playerField,   setPlayerField   ] = useState(initialPlayerField);
+  const [ opponentField, setOpponentField ] = useState(initialPlayerField);
 
   const [ avaibleToPlaceShips, setAvaibleToPlaceShips ] = useState(copyArrOfObjs(initialAvaibleShips));
   const [ shipToPlace,         setShipToPlace         ] = useState(null);
@@ -129,8 +130,10 @@ const Game = () => {
         length: 4 - ships[0].id
       };
       index = getRandomNumber(0, field.length - 1);
+
       x = index % GameFieldParams.width;
       y = Math.floor(index / GameFieldParams.height);
+
       checkNearestShips(x, y, choosenShip, field);
       checkBorders();
       if (isPossibleToPlaceShip.current) {
@@ -187,9 +190,17 @@ const Game = () => {
       { shipsList }
     </ul>
     <div className="btn-container">
-      <Button onClick = { rotateOriginHandler    }>Rotate ship</Button>
-      <Button onClick = { randomizeShipPlacement }>Randomize</Button>
-      <Button onClick = { clearField             }>Clear field</Button>
+      {
+        avaibleToPlaceShips.length > 0
+        ?
+          <>
+            <Button onClick = { rotateOriginHandler    }>Rotate ship</Button>
+            <Button onClick = { randomizeShipPlacement }>Randomize</Button>
+          </>
+        :
+          <Button onClick = { null }>Ready</Button>
+      }
+      <Button onClick = { clearField }>Reset</Button>
     </div>
   </div>;
 
@@ -281,7 +292,7 @@ const Game = () => {
                onOverCell = { shipToPlace && overCellHandler }
                onOutField = { shipToPlace && clearMask } />
     
-    <GameField field   = { playerField }
+    <GameField field   = { opponentField }
                label   = "Opponent Field" />
     
     {

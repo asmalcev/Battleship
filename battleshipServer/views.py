@@ -9,6 +9,7 @@ def getRandomID():
 def index(request):
   # Room.objects.all().delete()
   # Session.objects.all().delete()
+  # print(Session.objects.all())
 
   playerID = request.session.get('playerID', getRandomID())
   roomID = request.session.get('roomID', None)
@@ -75,3 +76,19 @@ def quit(request):
       pass
   request.session.modified = True
   return redirect('/')
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def init(request):
+  # Room.objects.all().delete()
+  Session.objects.all().delete()
+  # print(Session.objects.all())
+
+  # playerID = request.session.get('playerID', getRandomID())
+  # roomID = request.session.get('roomID', None)
+  # request.session['playerID'] = playerID
+
+  # print(playerID)
+
+  return HttpResponse(status=200)

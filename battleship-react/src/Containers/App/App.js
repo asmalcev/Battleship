@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 import Header from '../Header';
 import Menu   from '../Menu';
 import Game   from '../Game';
 
+import { UserDataContext } from '../../Contexts/UserDataContext';
+
 const App = () => {
+  const userData = useContext(UserDataContext);
+
   const [ isInGame, setIsInGame ] = useState(true);
+
+  console.log(userData);
 
   return <>
     <Header>

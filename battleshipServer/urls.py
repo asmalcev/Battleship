@@ -5,5 +5,6 @@ urlpatterns = [
   path('search', views.search),
   path('create', views.create),
   path('quit', views.quit),
+  path('init', views.init),
   path('', views.index),
 ]
