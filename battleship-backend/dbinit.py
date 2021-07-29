@@ -3,7 +3,12 @@ import sqlite3
 
 from dotenv import load_dotenv
 
-load_dotenv('../.env')
+load_dotenv('.env')
+
+try:
+  os.remove(os.environ['DB_NAME'])
+except:
+  pass
 
 db_name            = os.environ['DB_NAME']
 session_table_name = os.environ['SESSION_TABLE_NAME']

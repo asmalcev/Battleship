@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from wsgi    import wsgi_app
 from session import UserSessions
 
-load_dotenv('../.env')
+load_dotenv('.env')
 
 async def application(scope, receive, send):
   if scope['type'] == 'http':

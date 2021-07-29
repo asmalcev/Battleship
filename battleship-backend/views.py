@@ -1,47 +1,40 @@
-def index(request):
-  # print(request)
-
-  return (
-    b'It\'s Home page',
-    {
-      'status': 200
-    }
-  )
-
-def create(request):
-  return b'It\'s creating page'
-
-def delete(request):
-  return 'It\'s deleting page'
+import os
+import json
+import datetime
 
 def find(request):
   return [
     'Nothing has been found',
     {
-      'status': 404
+      'status': 404,
+    }
+  ]
+
+def not_found(request):
+  return [
+    'Nothing has been found',
+    {
+      'status': 404,
     }
   ]
 
 def auth(request):
-  jwt_token = request['session']['jwt']
-  uss       = request['session']['uss']
+  user = request['session']['user']
+  uss  = request['session']['uss']
 
   response = [b'', {
     'status' : 200,
-    'headers': []
+    'headers': [
+      (b'Content-Type', b'application/json')
+    ]
   }]
 
-  if jwt_token == None:
-    user = uss.register_new()
+  if user == None:
+    user        = uss.register_new()
 
-    response[0]            = str(user[0])
-    response[1]['headers'].append(
-      [ b'Set-Cookie', ('jwttoken=%s' % user[1]).encode() ]
-    )
-  else:
-    user = uss.find_user_by_jwt(jwt_token)
-    print(user)
-
-    response[0] = ('already %s' % user[0]).encode()
+  response[0] = json.dumps({
+    'id'       : user[0],
+    'jwttoken' : user[1]
+  })
 
   return response

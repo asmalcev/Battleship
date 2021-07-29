@@ -3,6 +3,7 @@ import os
 import jwt
 import random
 import atexit
+import datetime
 
 class UserSessions(object):
 
@@ -28,7 +29,10 @@ class UserSessions(object):
 
   def register_new(self):
     id         = random.randint(1000000, 1000000000)
-    jwt_string = jwt.encode({"id": id}, os.environ['PRIVATE_KEY'], algorithm="HS256")
+    jwt_string = jwt.encode({
+      "id" : id,
+      "exp": datetime.datetime.utcnow() + datetime.timedelta(days=int(os.environ['JWT_EXPIRE_DAYS']))
+    }, os.environ['PRIVATE_KEY'], algorithm="HS256")
 
     success_insert = False
 

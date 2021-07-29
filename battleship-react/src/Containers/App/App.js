@@ -9,16 +9,14 @@ import { UserDataContext } from '../../Contexts/UserDataContext';
 const App = () => {
   const userData = useContext(UserDataContext);
 
-  const [ isInGame, setIsInGame ] = useState(true);
-
-  console.log(userData);
+  // console.log(userData);
 
   return <>
     <Header>
       <h1>BattleShip</h1>
     </Header>
     {
-      isInGame
+      userData.isInGame
       ?
         <Game />
       :
