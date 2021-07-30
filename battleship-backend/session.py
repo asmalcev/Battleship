@@ -1,8 +1,8 @@
-import sqlite3
 import os
 import jwt
 import random
 import atexit
+import sqlite3
 import datetime
 
 class UserSessions(object):
@@ -38,13 +38,13 @@ class UserSessions(object):
 
     while not success_insert:
       try:
-        self.cur.execute('INSERT INTO %s values (%s, "%s")' % (self.table_name, id, jwt_string))
+        self.cur.execute('INSERT INTO %s (ID, JWT) values (%s, "%s")' % (self.table_name, id, jwt_string))
         self.con.commit()
         success_insert = True
       except sqlite3.IntegrityError:
         id = random.randint(1000000, 1000000000)
 
-    return (id, jwt_string)
+    return [id, jwt_string, None]
 
 
   def get_all(self):
@@ -71,3 +71,7 @@ class UserSessions(object):
       return None
 
     return self.find_user(decoded_json['id'])
+
+  def update_room(self, user_id, room_id):
+    self.cur.execute('UPDATE %s SET roomID = %s WHERE ID = %s' % (self.table_name, room_id, user_id))
+    self.con.commit()

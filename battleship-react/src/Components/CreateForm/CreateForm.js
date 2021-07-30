@@ -3,6 +3,8 @@ import { useState } from 'react';
 import Button   from '../../features/Button';
 import Checkbox from '../../features/Checkbox';
 
+import { localStorageKeys } from '../../Contexts/UserDataContext';
+
 const CreateForm = () => {
   const [ isOpen, setOpen ] = useState(false);
 
@@ -11,7 +13,19 @@ const CreateForm = () => {
   const submitHandler = e => {
     e.preventDefault();
 
-    alert(`Create ${ isOpen ? 'opened' : 'closed'} room`);
+    let jwttoken = localStorage.getItem(localStorageKeys['jwt']); // access token
+    fetch('http://localhost:8000/create', {
+      method: 'POST',
+      body: jwttoken == null ? '' : JSON.stringify({
+        jwttoken: jwttoken
+      })
+    }).then(response => response.text())
+      .then(data => {
+      console.log(data);
+
+    }).catch(err => {
+      console.log(err);
+    });
   }
 
   return <form onSubmit={ submitHandler }>

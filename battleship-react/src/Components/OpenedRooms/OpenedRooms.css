@@ -1,0 +1,14 @@
+.headline.opened-rooms {
+  position: relative;
+}
+
+.reload-circle {
+  user-select: none;
+  cursor: pointer;
+
+  position: absolute;
+  top: 50%;
+  right: 0.7rem;
+
+  transform: translateY(-50%);
+}

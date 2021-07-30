@@ -4,7 +4,7 @@ import {
   theme as themeConfig
 } from '../config';
 
-const localStorageKeys = {
+export const localStorageKeys = {
   'jwt'  : 'battleship_jwttoken',
   'theme': 'battleship_theme',
 };
@@ -13,7 +13,7 @@ export const UserDataContext = createContext({
   theme       : '',
   updateTheme : () => null,
   userId      : 0,
-  isInGame    : false
+  roomId      : null,
 });
 
 // const getCookie = name => {
@@ -39,7 +39,7 @@ export const UserDataContextProvider = props => {
 
   const [ theme   , setTheme  ]   = useState(localStorage.getItem(localStorageKeys['theme']) || 'light');
   const [ userId  , setUserId ]   = useState(0);
-  const [ isInGame, setIsInGame ] = useState(false);
+  const [ roomId  , setRoomId ]   = useState(null);
 
   contextObj.theme       = theme;
   contextObj.updateTheme = theme => {
@@ -47,8 +47,8 @@ export const UserDataContextProvider = props => {
     setTheme(theme);
   }
 
-  contextObj.userId   = userId;
-  contextObj.isInGame = isInGame;
+  contextObj.userId = userId;
+  contextObj.roomId = roomId;
 
   /*
    * Theme application
@@ -57,8 +57,10 @@ export const UserDataContextProvider = props => {
     document.documentElement.style.setProperty(`--${prop}`, themeConfig[theme][prop]);
   }
 
-  let jwttoken = localStorage.getItem(localStorageKeys['jwt']);
-
+  /*
+   * Updating data from server
+   */
+  let jwttoken = localStorage.getItem(localStorageKeys['jwt']); // access token
   useEffect(() => {
     fetch('http://localhost:8000/auth', {
       method: 'POST',
@@ -68,6 +70,9 @@ export const UserDataContextProvider = props => {
     }).then(response => response.json())
       .then(data => {
       console.log(data);
+
+      setUserId(data.id);
+      setRoomId(data.roomId);
 
       localStorage.setItem(localStorageKeys['jwt'], data.jwttoken);
 

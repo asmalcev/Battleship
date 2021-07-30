@@ -9,14 +9,14 @@ import { UserDataContext } from '../../Contexts/UserDataContext';
 const App = () => {
   const userData = useContext(UserDataContext);
 
-  // console.log(userData);
-
   return <>
     <Header>
       <h1>BattleShip</h1>
+      { userData.roomId || 'null' }<br/>
+      { userData.userId }
     </Header>
     {
-      userData.isInGame
+      !!userData.roomId
       ?
         <Game />
       :
