@@ -11,9 +11,10 @@ export const localStorageKeys = {
 
 export const UserDataContext = createContext({
   theme       : '',
-  updateTheme : () => null,
   userId      : 0,
   roomId      : null,
+  updateTheme : () => null,
+  updateRoom  : () => null,
 });
 
 // const getCookie = name => {
@@ -43,12 +44,16 @@ export const UserDataContextProvider = props => {
 
   contextObj.theme       = theme;
   contextObj.updateTheme = theme => {
-    localStorage.setItem(localStorageKeys['theme'], theme)
+    localStorage.setItem(localStorageKeys['theme'], theme);
     setTheme(theme);
   }
 
   contextObj.userId = userId;
   contextObj.roomId = roomId;
+
+  contextObj.updateRoom = roomId => {
+    setRoomId(roomId);
+  }
 
   /*
    * Theme application
@@ -69,13 +74,10 @@ export const UserDataContextProvider = props => {
       })
     }).then(response => response.json())
       .then(data => {
-      console.log(data);
-
       setUserId(data.id);
       setRoomId(data.roomId);
 
       localStorage.setItem(localStorageKeys['jwt'], data.jwttoken);
-
     }).catch(err => {
       console.log(err);
     });

@@ -42,7 +42,7 @@ class UserSessions(object):
         self.con.commit()
         success_insert = True
       except sqlite3.IntegrityError:
-        id = random.randint(1000000, 1000000000)
+        id = random.randint(100000000, 1000000000)
 
     return [id, jwt_string, None]
 

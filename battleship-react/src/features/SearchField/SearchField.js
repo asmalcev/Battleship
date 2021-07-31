@@ -7,7 +7,7 @@ const SearchField = ({
   requestChangeCallback,
   value
 }) => {
-  const idLength = 6;
+  const idLength = 9;
 
   const [ progress, setProgress ] = useState(value.length);
 

@@ -34,8 +34,8 @@ class Rooms(object):
     self.cur.execute('SELECT * FROM %s WHERE isOpen = 1' % self.table_name)
     return self.cur.fetchall()
 
-  def create(self, host_id):
-    id = random.randint(1000000, 1000000000)
+  def create(self, host_id, is_open):
+    id = random.randint(100000000, 1000000000)
 
     success_insert = False
 
@@ -43,11 +43,23 @@ class Rooms(object):
       try:
         self.cur.execute(
           'INSERT INTO %s (roomID, hostID, hostField, guestField, isOpen) values (%s, %s, "%s", "%s", %s)'
-            % (self.table_name, id, host_id, EMPTY_FIELD, EMPTY_FIELD, 1)
+            % (self.table_name, id, host_id, EMPTY_FIELD, EMPTY_FIELD, int(is_open))
         )
         self.con.commit()
         success_insert = True
       except sqlite3.IntegrityError:
-        id = random.randint(1000000, 1000000000)
+        id = random.randint(100000000, 1000000000)
 
     return id
+
+  def get_by_id(self, room_id):
+    self.cur.execute('SELECT * FROM %s WHERE roomID = %s' % (self.table_name, room_id))
+    return self.cur.fetchall()
+
+  def delete_room(self, room_id):
+    self.cur.execute('DELETE FROM %s WHERE roomID = %s' % (self.table_name, room_id))
+    self.con.commit()
+
+  def change_guest_id(self, room_id, guest_id):
+    self.cur.execute('UPDATE %s SET guestID = %s WHERE roomID = %s' % (self.table_name, guest_id, room_id))
+    self.con.commit()

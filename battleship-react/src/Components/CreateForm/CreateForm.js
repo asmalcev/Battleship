@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 
 import Button   from '../../features/Button';
 import Checkbox from '../../features/Checkbox';
 
-import { localStorageKeys } from '../../Contexts/UserDataContext';
+import {
+  localStorageKeys,
+  UserDataContext
+} from '../../Contexts/UserDataContext';
 
 const CreateForm = () => {
+  const userData = useContext(UserDataContext);
+
   const [ isOpen, setOpen ] = useState(false);
 
   const changeOpenHanlder = () => setOpen(!isOpen);
@@ -17,11 +22,12 @@ const CreateForm = () => {
     fetch('http://localhost:8000/create', {
       method: 'POST',
       body: jwttoken == null ? '' : JSON.stringify({
-        jwttoken: jwttoken
+        jwttoken: jwttoken,
+        isOpen: isOpen
       })
     }).then(response => response.text())
       .then(data => {
-      console.log(data);
+      userData.updateRoom(+data);
 
     }).catch(err => {
       console.log(err);
