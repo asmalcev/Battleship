@@ -76,3 +76,9 @@
 .game-field-cell.miss::after, .game-field-cell.hit::after, .game-field-cell.blocked::after {
   transform: translate(-50%, -50%) rotate(-45deg);
 }
+
+@media (max-width: 1280px) {
+  .game-field-container h3 {
+    margin-top: 2.5rem;
+  }
+}

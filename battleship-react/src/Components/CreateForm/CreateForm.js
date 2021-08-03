@@ -30,6 +30,7 @@ const CreateForm = () => {
     }).then(response => response.text())
       .then(data => {
       userData.updateRoom(+data);
+      userData.isHost.current = true;
 
     }).catch(err => {
       console.log(err);

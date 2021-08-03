@@ -42,8 +42,6 @@ const SearchForm = () => {
       if (response.status === 200) {
         userData.updateRoom(request);
       } else {
-        modalData.updateIsShown(true);
-
         const closeHandler = () => {
           modalData.updateIsShown(false);
         }
@@ -54,6 +52,7 @@ const SearchForm = () => {
         </>;
 
         modalData.updateContent(notFoundMessage);
+        modalData.updateIsShown(true);
       }
     }).catch(err => {
       console.log(err);

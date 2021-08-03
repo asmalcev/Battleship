@@ -5,10 +5,7 @@ import Menu   from '../Menu';
 import Game   from '../Game';
 import Modal  from '../../Components/Modal/Modal';
 
-import {
-  localStorageKeys,
-  UserDataContext
-} from '../../Contexts/UserDataContext';
+import { UserDataContext } from '../../Contexts/UserDataContext';
 
 const App = () => {
   const userData = useContext(UserDataContext);

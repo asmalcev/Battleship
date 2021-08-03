@@ -13,6 +13,8 @@ import {
   UserDataContext
 } from '../../Contexts/UserDataContext';
 
+import { ModalContext } from '../../Contexts/ModalContext';
+
 import { config } from '../../config';
 
 import './Game.css';
@@ -61,14 +63,45 @@ const getRandomNumber = (min, max) => {
   return Math.floor(min + Math.random() * (max + 1 - min));
 }
 
+const indexToXY = index => ({
+  x: index % GameFieldParams.width,
+  y: Math.floor(index / GameFieldParams.width)
+});
+
+const XYToIndex = ({x, y}) => y * GameFieldParams.width + x;
+
+const getAllIndexes = (arr, val) => {
+  let indexes = [], i = -1;
+  while ((i = arr.indexOf(val, i + 1)) != -1) {
+    indexes.push(i);
+  }
+  return indexes;
+}
+
+const blockCells = field => {
+  getAllIndexes(field, 4).forEach(index => {
+    const { x, y } = indexToXY(index);
+    getRect(x - 1, y - 1, 3, 3).forEach(coords => {
+      if (field[coords] === 0) {
+        field[coords] = 5;
+      }
+    })
+  });
+
+  return field;
+}
+
 const Game = () => {
-  const userData = useContext(UserDataContext);
+  const userData  = useContext(UserDataContext);
+  const modalData = useContext(ModalContext);
 
-  const socket              = useRef(null);
-  const opponentId          = useRef(null);
-  const sendMessageToServer = useRef(null);
+  const socket                    = useRef(null);
+  const opponentId                = useRef(null);
+  const sendMessageToServer       = useRef(null);
+  const waintingForResponseToStep = useRef(false);
 
-  const [ gameState, setGameState ] = useState(config.gameStates.notStarted);
+  const [ gameState,   setGameState   ] = useState(config.gameStates.notStarted);
+  const [ playerState, setPlayerState ] = useState(1);
 
   const [ playerField,   setPlayerField   ] = useState(initialPlayerField);
   const [ opponentField, setOpponentField ] = useState(initialPlayerField);
@@ -203,6 +236,15 @@ const Game = () => {
     </li>
   );
 
+  const readyHandler = e => {
+    e.preventDefault();
+    if (sendMessageToServer.current === null) return;
+    sendMessageToServer.current({
+      type: 'field',
+      data: playerField.join('')
+    });
+  }
+
   const leftPanel = <div className="game-panel">
     <h3>Avaible ships</h3>
     <ul>
@@ -217,7 +259,7 @@ const Game = () => {
             <Button onClick = { randomizeShipPlacement }>Randomize</Button>
           </>
         :
-          <Button onClick = { null }>Ready</Button>
+          <Button onClick = { readyHandler }>Ready</Button>
       }
       <Button onClick = { clearField }>Reset</Button>
     </div>
@@ -294,10 +336,8 @@ const Game = () => {
     setPlayerFieldMask(null);
   }
 
-  const deleteHandler = e => {
-    e.preventDefault();
-
-    if (sendMessageToServer.current === null) return;
+  const deleteHandler = (_, shouldNotifyOpponent = true) => {
+    if (sendMessageToServer.current === null && !shouldNotifyOpponent) return;
 
     let jwttoken = localStorage.getItem(localStorageKeys['jwt']); // access token
     fetch(`http://${config.battleshipServer.host}/delete`, {
@@ -309,9 +349,9 @@ const Game = () => {
       })
     }).then(response => response.text())
       .then(data => {
-        console.log(data);
+        // console.log(data);
         userData.updateRoom(null);
-        sendMessageToServer.current({ type: 'notifyOpponent' })
+        shouldNotifyOpponent && sendMessageToServer.current({ type: 'notifyOpponent' });
 
     }).catch(err => {
       console.log(err);
@@ -329,16 +369,15 @@ const Game = () => {
     sendMessageToServer.current = msg => {
       socket.current.send(JSON.stringify(msg));
     }
+  }, [userData.roomId]);
 
+  useEffect(() => {
     socket.current.onopen = event => {
       console.log('ok', 'Connection established');
-    
-      const msg = {
+      sendMessageToServer.current({
         type     : 'initial',
         playerID : userData.userId
-      };
-
-      sendMessageToServer.current(msg);
+      });
     }
 
     socket.current.onclose = event => {
@@ -351,39 +390,164 @@ const Game = () => {
 
     socket.current.onmessage = event => {
       const response = JSON.parse(event.data);
-
-      console.log(response);
-
+      /*
+       *
+       * MODEL CHANGE MSG RESPONSE
+       *
+      */
       if (response.type === 'modelChange') {
         if (response.opponent != 'None' && opponentId.current == null) {
           opponentId.current = response.opponent;
           setGameState(config.gameStates.started);
-          console.log('opponent connected', 'game started');
+
+          const closeHandler = () => {
+            modalData.updateIsShown(false);
+          }
+
+          const modalContent = <>
+            <h2 className="margined">Opponent in the room</h2>
+            <p>opponent_id: { opponentId.current }</p>
+            <Button onClick={ closeHandler }>Ok</Button>
+          </>;
+
+          modalData.updateContent(modalContent);
+          modalData.updateIsShown(true);
         } else if (
           (response.opponent === 'None' || response.opponent === '0') &&
-          opponentId.current !== undefined
+          opponentId.current !== null
         ) {
           opponentId.current = null;
           setGameState(config.gameStates.notStarted);
-          console.log('opponent disconnected', 'game not started');
-        }
-      } else if (response.type === 'step') {
 
+          const closeHandler = () => {
+            modalData.updateIsShown(false);
+          }
+
+          const modalContent = <>
+            <h2 className="margined">Opponent disconnected</h2>
+            <Button onClick={ closeHandler }>Ok :(</Button>
+          </>;
+
+          modalData.updateContent(modalContent);
+          modalData.updateIsShown(true);
+        }
+        if (response.playerState !== playerState) {
+          setPlayerState(response.playerState);
+        }
+        if (response.diff !== undefined) {
+          const tmpField = playerField.slice();
+          response.diff.forEach(diffCell => {
+            tmpField[+diffCell[1]] = +diffCell[0];
+          });
+          setPlayerField(blockCells(tmpField));
+        }
+      /*
+       *
+       * STEP MSG RESPONSE
+       *
+      */
+      } else if (response.type === 'step') {
+        waintingForResponseToStep.current = false;
+        const tmpField = opponentField.slice();
+        response.coords.forEach(coord => {
+          tmpField[XYToIndex(coord)] = +response.classCode;
+        });
+        setOpponentField(blockCells(tmpField));
+
+      /*
+       *
+       * INITIAL MSG RESPONSE
+       *
+      */
       } else if (response.type === 'initial') {
-        
+        setPlayerField(
+          blockCells( response.playerField.split('').map(cell => +cell) )
+        );
+        setOpponentField(
+          blockCells( response.opponentField.split('').map(cell => +cell) )
+        );
+
+      /*
+       *
+       * WARNING MSG RESPONSE
+       *
+      */
       } else if (response.type === 'warning') {
-        
+        switch(response.code) {
+          case 1: // room has been deleted
+            console.log('bad', 'Connection lost');
+            if (userData.isHost.current === false) {
+              const closeHandler = () => {
+                modalData.updateIsShown(false);
+                deleteHandler(null, false);
+              }
+
+              const modalContent = <>
+                <h2 className="margined">Seems like host leaved the room and it has been deleted</h2>
+                <Button onClick={ closeHandler }>Return to menu</Button>
+              </>;
+
+              modalData.updateContent(modalContent);
+              modalData.updateIsShown(true);
+            } else {
+              userData.isHost.current = false;
+            }
+            break;
+        }
+
+      /*
+       *
+       * GOT MSG ABOUT WIN / LOSE
+       *
+      */
       } else if (response.type === 'theend') {
-        
+        let title;
+        if (response.result === 'won') {
+          title = 'Congratulations, you won!';
+        } else {
+          title = 'Unfortunately you lost :(';
+        }
+
+        const closeHandler = () => {
+          modalData.updateIsShown(false);
+        }
+
+        const closeAndQuitHandler = () => {
+          modalData.updateIsShown(false);
+          deleteHandler(null, false);
+        }
+
+        const modalContent = <>
+          <h2 className="margined">{ title }</h2>
+          <Button onClick={ closeHandler }>Ok</Button>
+          <Button onClick={ closeAndQuitHandler }>Return to menu</Button>
+        </>;
+
+        modalData.updateContent(modalContent);
+        modalData.updateIsShown(true);
       }
     }
 
-  }, []);
+  }, [opponentField, playerField, playerState, userData.userId]);
+
+  const opponentFieldClickHandler = (target, e) => {
+    if (
+      !waintingForResponseToStep.current &&
+      playerState == config.userStates.turnToGo &&
+      target.html.classList.contains('empty')
+    ) {
+      waintingForResponseToStep.current = true;
+      sendMessageToServer.current({
+        type: 'step',
+        data: indexToXY(target.index)
+      });
+    }
+  }
 
   return <><h2 onClick={ deleteHandler } style={{backgroundColor: '#3335'}}>leave</h2>
   <div className="game-container">
     {
-      leftPanel
+      playerState < config.userStates.readyToPlay && leftPanel
     }
     
     <GameField field = {
@@ -398,7 +562,8 @@ const Game = () => {
                onOverCell = { shipToPlace && overCellHandler }
                onOutField = { shipToPlace && clearMask } />
     
-    <GameField field   = { opponentField }
+    <GameField onClick = { opponentFieldClickHandler }
+               field   = { opponentField }
                label   = "Opponent Field" />
     
     {

@@ -1,4 +1,4 @@
-import { useState, createContext, useEffect } from 'react';
+import { useState, createContext, useEffect, useRef } from 'react';
 
 import {
   theme as themeConfig,
@@ -14,11 +14,10 @@ export const UserDataContext = createContext({
   theme     : '',
   userId    : 0,
   roomId    : null,
-  userState : 0,
+  isHost    : { current: false },
 
   updateTheme : () => null,
   updateRoom  : () => null,
-  updateState : () => null,
 });
 
 // const getCookie = name => {
@@ -42,10 +41,11 @@ export const UserDataContext = createContext({
 export const UserDataContextProvider = props => {
   const contextObj = {};
 
-  const [ theme     , setTheme     ] = useState(localStorage.getItem(localStorageKeys['theme']) || 'light');
-  const [ userId    , setUserId    ] = useState(0);
-  const [ roomId    , setRoomId    ] = useState(null);
-  const [ userState , setUserState ] = useState(0);
+  const [ theme     , setTheme  ] = useState(localStorage.getItem(localStorageKeys['theme']) || 'light');
+  const [ userId    , setUserId ] = useState(0);
+  const [ roomId    , setRoomId ] = useState(null);
+
+  const isHost = useRef(false);
 
   contextObj.theme       = theme;
   contextObj.updateTheme = theme => {
@@ -53,21 +53,12 @@ export const UserDataContextProvider = props => {
     setTheme(theme);
   }
 
-  contextObj.userId    = userId;
-  contextObj.roomId    = roomId;
-  contextObj.userState = userState;
+  contextObj.userId = userId;
+  contextObj.roomId = roomId;
+  contextObj.isHost = isHost;
 
   contextObj.updateRoom = roomId => {
     setRoomId(roomId);
-    // if (roomId != null) {
-    //   setUserState(1);
-    // } else {
-    //   setUserState(0);
-    // }
-  }
-
-  contextObj.updateState = state => {
-    setUserState(state);
   }
 
   /*
@@ -91,7 +82,6 @@ export const UserDataContextProvider = props => {
       .then(data => {
       setUserId(data.id);
       setRoomId(data.roomId);
-      setUserState(data.state)
 
       localStorage.setItem(localStorageKeys['jwt'], data.jwttoken);
     }).catch(err => {
@@ -99,6 +89,5 @@ export const UserDataContextProvider = props => {
     });
   }, [jwttoken]);
 
-  console.log(contextObj);
   return <UserDataContext.Provider value={ contextObj } {...props}/>;
 }

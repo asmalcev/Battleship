@@ -1,5 +1,5 @@
 class GameLogic:
-  playerField = None
+  playerField   = None
   opponentField = None
 
   FIELD_LENGTH = 100

@@ -265,6 +265,7 @@ class WebsocketApplication:
               # room.guestField = self.gm.makeShoot(room.guestField, coords)
               # self.gm.opponentField = room.guestField.replace('1', '0')
               self.rooms.change_guest_field(self.roomId, self.gm.makeShoot(room[4], coords))
+              room = self.rooms.get_by_id(self.roomId)[0]
               self.gm.opponentField = room[4].replace('1', '0') # guestField
 
               if self.gm.checkIfAllOpponentShipsWereKilled():
@@ -306,6 +307,7 @@ class WebsocketApplication:
               # room.hostField = self.gm.makeShoot(room.hostField, coords)
               # self.gm.opponentField = room.hostField.replace('1', '0')
               self.rooms.change_host_field(self.roomId, self.gm.makeShoot(room[3], coords)) # hostField
+              room = self.rooms.get_by_id(self.roomId)[0]
               self.gm.opponentField = room[3].replace('1', '0') # hostField
 
               if self.gm.checkIfAllOpponentShipsWereKilled():

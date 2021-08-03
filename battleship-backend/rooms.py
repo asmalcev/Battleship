@@ -74,9 +74,9 @@ class Rooms(object):
     self.con.commit()
 
   def change_host_field(self, room_id, field):
-    self.cur.execute('UPDATE %s SET hostField = %s WHERE roomID = %s' % (self.table_name, field, room_id))
+    self.cur.execute('UPDATE %s SET hostField = "%s" WHERE roomID = %s' % (self.table_name, field, room_id))
     self.con.commit()
 
   def change_guest_field(self, room_id, field):
-    self.cur.execute('UPDATE %s SET guestField = %s WHERE roomID = %s' % (self.table_name, field, room_id))
+    self.cur.execute('UPDATE %s SET guestField = "%s" WHERE roomID = %s' % (self.table_name, field, room_id))
     self.con.commit()

@@ -31,6 +31,7 @@
 }
 
 .game-container .game-panel h3 {
+  margin-bottom: 2rem;
   text-align: center;
 }
 
@@ -77,4 +78,10 @@
   border-radius: 3px;
 
   color: #E53935dd;
+}
+
+@media (max-width: 1280px) {
+  .game-container {
+    flex-wrap: wrap;
+  }
 }
