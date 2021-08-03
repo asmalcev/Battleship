@@ -1,5 +1,20 @@
 export const config = {
-  
+  userStates: {
+    inMenu         : 0,
+    inRoom         : 1,
+    readyToPlay    : 2,
+    turnToGo       : 3,
+    waitingForTurn : 4,
+    won            : 5,
+    lost           : 6,
+  },
+  gameStates: {
+    notStarted : 0,
+    started    : 1
+  },
+  battleshipServer: {
+    host: window.location.hostname + ':8000'
+  }
 };
 
 export const theme = {

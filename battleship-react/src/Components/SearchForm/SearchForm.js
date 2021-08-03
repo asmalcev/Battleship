@@ -8,8 +8,13 @@ import {
   UserDataContext
 } from '../../Contexts/UserDataContext';
 
+import { config } from '../../config';
+
+import { ModalContext } from '../../Contexts/ModalContext';
+
 const SearchForm = () => {
-  const userData = useContext(UserDataContext);
+  const userData  = useContext(UserDataContext);
+  const modalData = useContext(ModalContext);
 
   const [ request,      setRequest ] = useState('');
   const [ validRequest, setValid   ] = useState(true);
@@ -26,18 +31,30 @@ const SearchForm = () => {
     }
 
     let jwttoken = localStorage.getItem(localStorageKeys['jwt']); // access token
-    fetch('http://localhost:8000/find', {
+    fetch(`http://${config.battleshipServer.host}/find`, {
       method: 'POST',
       body: jwttoken == null ? '' : JSON.stringify({
         jwttoken: jwttoken,
         roomId: request,
         userId: userData.userId
       })
-    }).then(response => response.text())
-      .then(data => {
-        console.log(data);
+    }).then(response => {
+      if (response.status === 200) {
         userData.updateRoom(request);
+      } else {
+        modalData.updateIsShown(true);
 
+        const closeHandler = () => {
+          modalData.updateIsShown(false);
+        }
+
+        const notFoundMessage = <>
+          <h2 className="margined">Nothing has been found :(</h2>
+          <Button onClick={ closeHandler }>Close</Button>
+        </>;
+
+        modalData.updateContent(notFoundMessage);
+      }
     }).catch(err => {
       console.log(err);
     });

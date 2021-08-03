@@ -22,3 +22,7 @@ body {
   margin-top: 2rem;
   margin-bottom: 0.5rem;
 }
+
+.margined {
+  margin: 1rem 0.5rem;
+}

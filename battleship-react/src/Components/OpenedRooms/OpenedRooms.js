@@ -9,6 +9,8 @@ import {
   UserDataContext
 } from '../../Contexts/UserDataContext';
 
+import { config } from '../../config';
+
 const OpenedRooms = ({
   rooms,
   reload
@@ -17,7 +19,7 @@ const OpenedRooms = ({
 
   const clickHandler = (roomId) => {
     let jwttoken = localStorage.getItem(localStorageKeys['jwt']); // access token
-    fetch('http://localhost:8000/connect', {
+    fetch(`http://${config.battleshipServer.host}/connect`, {
       method: 'POST',
       body: jwttoken == null ? '' : JSON.stringify({
         jwttoken: jwttoken,
@@ -40,10 +42,14 @@ const OpenedRooms = ({
 
   return <>
     <h3 className="headline opened-rooms">
-      Opened rooms
-      <div className="reload-circle" onClick={ reloadHandler }>reload</div>
+      Open rooms
+      <button className="reload" onClick={ reloadHandler }>reload</button>
     </h3>
     {
+      rooms.length === 0
+      ?
+      <p>No open rooms</p>
+      :
       rooms.map(roomid =>
         <Room key           = { roomid }
               roomName      = { roomid }

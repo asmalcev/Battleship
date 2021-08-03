@@ -1,0 +1,41 @@
+Server responses:
+
+{
+  type: modelChange,
+  # use cases: opponent turn in/leaved/made step
+},
+{
+  type: step,
+  # response to the last step
+},
+{
+  type: initial,
+  # same as client
+},
+{
+  type: warning,
+  # notify is room has been deleted
+},
+{
+  type: theend,
+  # message about win or lose
+}
+
+Client responses:
+
+{
+  type: initial,
+  # get fields from server (need if game started), notify player about his opponent status: online/offline
+},
+{
+  type: notifyOpponent,
+  # notify opponent if player leaved
+},
+{
+  type: field,
+  # send filled field
+},
+{
+  type: step,
+  # send step
+},

@@ -1,0 +1,27 @@
+.modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: var(--shadow-color);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-window {
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 3px;
+}
+
+.modal-wrapper .close-handler {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: -1;
+}

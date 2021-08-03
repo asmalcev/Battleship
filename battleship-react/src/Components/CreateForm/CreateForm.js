@@ -8,6 +8,8 @@ import {
   UserDataContext
 } from '../../Contexts/UserDataContext';
 
+import { config } from '../../config';
+
 const CreateForm = () => {
   const userData = useContext(UserDataContext);
 
@@ -19,7 +21,7 @@ const CreateForm = () => {
     e.preventDefault();
 
     let jwttoken = localStorage.getItem(localStorageKeys['jwt']); // access token
-    fetch('http://localhost:8000/create', {
+    fetch(`http://${config.battleshipServer.host}/create`, {
       method: 'POST',
       body: jwttoken == null ? '' : JSON.stringify({
         jwttoken: jwttoken,
@@ -37,7 +39,7 @@ const CreateForm = () => {
   return <form onSubmit={ submitHandler }>
     <Checkbox id       = "is-opened"
               checked  = { isOpen }
-              onChange = { changeOpenHanlder }>Create an opened room</Checkbox>
+              onChange = { changeOpenHanlder }>Create an open room</Checkbox>
     <Button type="submit">Create room</Button>
   </form>;
 }

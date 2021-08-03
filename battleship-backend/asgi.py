@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 
-from wsgi    import wsgi_app
-from session import UserSessions
+from wsgi      import wsgi_app
+from session   import UserSessions
+from websocket import WebsocketApplication
 
 load_dotenv('.env')
 
@@ -10,7 +11,8 @@ async def application(scope, receive, send):
     await wsgi_app(scope, receive, send, UserSessions())
 
   elif scope['type'] == 'websocket':
-    print('websoket')
+    wa = WebsocketApplication(scope, receive, send)
+    await wa.run()
 
   else:
     await send({

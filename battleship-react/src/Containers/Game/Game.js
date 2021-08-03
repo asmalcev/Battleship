@@ -1,7 +1,19 @@
-import { useState, useRef } from 'react';
+import {
+  useState,
+  useRef,
+  useContext,
+  useEffect
+} from 'react';
 
 import GameField from '../../Components/GameField';
 import Button    from '../../features/Button';
+
+import { 
+  localStorageKeys,
+  UserDataContext
+} from '../../Contexts/UserDataContext';
+
+import { config } from '../../config';
 
 import './Game.css';
 
@@ -50,6 +62,13 @@ const getRandomNumber = (min, max) => {
 }
 
 const Game = () => {
+  const userData = useContext(UserDataContext);
+
+  const socket              = useRef(null);
+  const opponentId          = useRef(null);
+  const sendMessageToServer = useRef(null);
+
+  const [ gameState, setGameState ] = useState(config.gameStates.notStarted);
 
   const [ playerField,   setPlayerField   ] = useState(initialPlayerField);
   const [ opponentField, setOpponentField ] = useState(initialPlayerField);
@@ -275,7 +294,94 @@ const Game = () => {
     setPlayerFieldMask(null);
   }
 
-  return <div className="game-container">
+  const deleteHandler = e => {
+    e.preventDefault();
+
+    if (sendMessageToServer.current === null) return;
+
+    let jwttoken = localStorage.getItem(localStorageKeys['jwt']); // access token
+    fetch(`http://${config.battleshipServer.host}/delete`, {
+      method: 'POST',
+      body: jwttoken == null ? '' : JSON.stringify({
+        jwttoken: jwttoken,
+        roomId: userData.roomId,
+        userId: userData.userId
+      })
+    }).then(response => response.text())
+      .then(data => {
+        console.log(data);
+        userData.updateRoom(null);
+        sendMessageToServer.current({ type: 'notifyOpponent' })
+
+    }).catch(err => {
+      console.log(err);
+    });
+  }
+
+  /*
+   *
+   *  WEBSOCKET
+   *
+  */
+  useEffect(() => {
+    socket.current = new WebSocket(`ws://${config.battleshipServer.host}/game/${userData.roomId}`);
+
+    sendMessageToServer.current = msg => {
+      socket.current.send(JSON.stringify(msg));
+    }
+
+    socket.current.onopen = event => {
+      console.log('ok', 'Connection established');
+    
+      const msg = {
+        type     : 'initial',
+        playerID : userData.userId
+      };
+
+      sendMessageToServer.current(msg);
+    }
+
+    socket.current.onclose = event => {
+      console.log('bad', 'Connection lost');
+    }
+
+    socket.current.onerror = error => {
+      console.error(`[WebSocket error] ${error.message}`)
+    }
+
+    socket.current.onmessage = event => {
+      const response = JSON.parse(event.data);
+
+      console.log(response);
+
+      if (response.type === 'modelChange') {
+        if (response.opponent != 'None' && opponentId.current == null) {
+          opponentId.current = response.opponent;
+          setGameState(config.gameStates.started);
+          console.log('opponent connected', 'game started');
+        } else if (
+          (response.opponent === 'None' || response.opponent === '0') &&
+          opponentId.current !== undefined
+        ) {
+          opponentId.current = null;
+          setGameState(config.gameStates.notStarted);
+          console.log('opponent disconnected', 'game not started');
+        }
+      } else if (response.type === 'step') {
+
+      } else if (response.type === 'initial') {
+        
+      } else if (response.type === 'warning') {
+        
+      } else if (response.type === 'theend') {
+        
+      }
+    }
+
+  }, []);
+
+  return <><h2 onClick={ deleteHandler } style={{backgroundColor: '#3335'}}>leave</h2>
+  <div className="game-container">
     {
       leftPanel
     }
@@ -298,7 +404,13 @@ const Game = () => {
     {
       rightPanel
     }
-  </ div>;
+    {
+      gameState === config.gameStates.notStarted &&
+      <div className="noise-block-mask">
+        <h2>Waiting for the opponent</h2>
+      </div>
+    }
+  </div></>;
 }
 
 export default Game;

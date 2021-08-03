@@ -8,6 +8,8 @@ import OpenedRooms from '../../Components/OpenedRooms';
 
 import { localStorageKeys } from '../../Contexts/UserDataContext';
 
+import { config } from '../../config';
+
 import './Menu.css';
 
 const Menu = () => {
@@ -18,7 +20,7 @@ const Menu = () => {
     if (jwttoken == null) return 0;
     console.log('loading opened rooms');
 
-    fetch('http://localhost:8000/get-opened-rooms', {
+    fetch(`http://${config.battleshipServer.host}/get-opened-rooms`, {
       method: 'POST',
       body: jwttoken == null ? '' : JSON.stringify({
         jwttoken: jwttoken

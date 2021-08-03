@@ -1,4 +1,6 @@
 .game-container {
+  position: relative;
+
   display: flex;
   justify-content: center;
 
@@ -49,4 +51,30 @@
 
 .game-container .game-panel ul li.active {
   text-decoration: underline 2px;
+}
+
+.game-container > .noise-block-mask {
+  cursor: not-allowed;
+
+  position: absolute;
+  top: -2rem;
+  left: 0;
+  right: 0;
+  bottom: -2rem;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin: 0;
+  padding: 0;
+  background: repeating-linear-gradient( -45deg, #E5393522, #E5393522 6px, transparent 6px, transparent 40px );
+}
+
+.game-container > .noise-block-mask > h2 {
+  padding: 1rem;
+  background-color: var(--shadow-color);
+  border-radius: 3px;
+
+  color: #E53935dd;
 }

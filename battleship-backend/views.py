@@ -43,13 +43,30 @@ def auth(request):
     ]
   }]
 
+  user_state = 0
+
   if user == None:
     user = uss.register_new()
+  else:
+    rooms = Rooms()
+    try:
+      room = rooms.get_by_id(user[2])[0]
+      if user[0] == room[1]:
+        # host
+        user_state = room[5]
+      else:
+        # guest
+        user_state = room[6]
+    except:
+      if user[2] != 0:
+        uss.update_room(user[0], 0)
+        user = (user[0], user[1], 0)
 
   response[0] = json.dumps({
     'id'       : user[0],
     'jwttoken' : user[1],
     'roomId'   : user[2],
+    'state'    : user_state
   })
 
   return response
@@ -98,11 +115,14 @@ def delete_room(request):
     except:
       pass
 
-  room = rooms.get_by_id(json_body['roomId'])[0]
-  if room[1] == user[0]:
-    rooms.delete_room(json_body['roomId'])
-  else:
-    rooms.change_guest_id(json_body['roomId'], 0)
+  try:
+    room = rooms.get_by_id(json_body['roomId'])[0]
+    if room[1] == user[0]:
+      rooms.delete_room(json_body['roomId'])
+    else:
+      rooms.change_guest_id(json_body['roomId'], 0)
+  except:
+    pass
 
   uss.update_room(user[0], 0)
 
